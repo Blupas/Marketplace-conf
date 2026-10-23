@@ -1,0 +1,49 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: c.name, actions: '<a class="btn btn-sm" href="/empresa/' + c.slug + '" target="_blank" rel="noopener">Ver página pública</a>' }) %>
+<div class="status-bar is-<%= c.status %>"><div class="grow"><strong>Situação: <%= cat.STATUS_LABEL[c.status] %></strong><% if (c.is_demo) { %> <span class="pill pill-demo">dados de demonstração</span><% } %>
+  <div class="small"><%= c.status_reason ? 'Motivo registrado: ' + c.status_reason : '' %></div></div></div>
+<div class="grid grid-2">
+  <div class="card"><h2>Análise</h2>
+    <p class="small muted">Completude: <strong><%= comp.percent %>%</strong>. <%= comp.canSubmit ? 'Todos os itens obrigatórios estão preenchidos.' : 'Faltam itens obrigatórios.' %></p>
+    <ul class="checklist"><% comp.required.concat(comp.suggested).forEach((i) => { %><li class="<%= i.ok ? 'done' : '' %>"><span class="mark"><% if (i.ok) { %><%- icon('check') %><% } %></span><%= i.label %></li><% }) %></ul>
+    <form method="post" action="/admin/empresas/<%= c.id %>/aprovar"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <% if (!comp.canSubmit) { %><label class="check"><input type="checkbox" name="force" value="1"> Aprovar mesmo assim</label><% } %>
+      <button class="btn btn-primary" type="submit" <%= c.status === 'aprovado' ? 'disabled' : '' %>>Aprovar e publicar</button></form>
+    <hr style="margin:1rem 0">
+    <form method="post" id="f-motivo"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <div class="field"><label for="reason">Motivo (obrigatório para rejeitar ou suspender; enviado ao dono)</label><textarea id="reason" name="reason" maxlength="500" style="min-height:80px"></textarea></div>
+      <div class="row">
+        <button class="btn btn-danger" type="submit" formaction="/admin/empresas/<%= c.id %>/rejeitar">Rejeitar</button>
+        <button class="btn btn-danger" type="submit" formaction="/admin/empresas/<%= c.id %>/suspender" <%= c.status === 'suspenso' ? 'disabled' : '' %>>Suspender</button>
+        <% if (c.status === 'suspenso') { %><button class="btn" type="submit" formaction="/admin/empresas/<%= c.id %>/reativar">Reativar</button><% } %></div></form>
+  </div>
+  <div class="card"><h2>Dados</h2>
+    <dl class="kv">
+      <div><dt>Dono</dt><dd><%= c.is_demo ? '— (demonstração)' : (c.owner_name || '') + ' · ' + (c.owner_email || '—') %></dd></div>
+      <div><dt>Razão social / CNPJ</dt><dd><%= c.legal_name || '—' %> · <%= c.cnpj || '—' %></dd></div>
+      <div><dt>Cidade</dt><dd><%= a.city ? a.city + ' – ' + a.state : '—' %> <span class="small muted">(privacidade: <%= a.privacy || 'exata' %>)</span></dd></div>
+      <div><dt>Contatos</dt><dd><%= [c.whatsapp && 'WhatsApp ' + U.formatPhone(c.whatsapp), c.phone && U.formatPhone(c.phone), c.email].filter(Boolean).join(' · ') || '—' %></dd></div>
+      <div><dt>Categorias</dt><dd><%= cats.join(', ') || '—' %></dd></div>
+      <div><dt>Conteúdo</dt><dd><%= counts.servicos %> anúncios · <%= counts.maquinas %> máquinas · <%= counts.midias %> mídias</dd></div>
+      <div><dt>Criada</dt><dd><%= U.fmtDate(c.created_at, true) %></dd></div>
+    </dl>
+    <h3 style="font-size:1rem;margin-top:1rem">Descrição</h3><p style="white-space:pre-line" class="small"><%= c.description || '—' %></p>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>Destaque e plano</h2>
+    <form method="post" action="/admin/empresas/<%= c.id %>/destaque"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <label class="check"><input type="checkbox" name="featured" value="1" <%= c.featured ? 'checked' : '' %>> Destacar na página inicial</label>
+      <div class="field"><label for="fu">Destacar até (opcional)</label><input id="fu" type="date" name="featured_until" value="<%= c.featured_until ? String(c.featured_until).slice(0, 10) : '' %>"></div>
+      <button class="btn" type="submit">Salvar destaque</button></form>
+    <form method="post" action="/admin/empresas/<%= c.id %>/plano" style="margin-top:1rem"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <div class="field"><label for="pl">Plano</label><select id="pl" name="plan_id"><option value="">Nenhum</option><% plans.forEach((p) => { %><option value="<%= p.id %>" <%= c.plan_id === p.id ? 'selected' : '' %>><%= p.name %><%= p.available ? '' : ' (em breve)' %></option><% }) %></select></div>
+      <button class="btn" type="submit">Salvar plano</button></form></div>
+  <div class="card"><h2>Denúncias</h2>
+    <% if (reports.length) { %><ul style="padding-left:1.1rem"><% reports.forEach((r) => { %><li><strong><%= r.reason %></strong> — <%= r.status %> <span class="small muted">(<%= U.timeAgo(r.created_at) %>)</span></li><% }) %></ul><a href="/admin/denuncias">Gerenciar denúncias</a><% } else { %><p class="muted">Nenhuma denúncia.</p><% } %>
+    <h2 style="margin-top:1.2rem">Histórico de moderação</h2>
+    <% if (logs.length) { %><ul class="small" style="padding-left:1.1rem"><% logs.forEach((l) => { %><li><strong><%= l.action %></strong> <%= l.note ? '— ' + l.note : '' %> <span class="muted">· <%= l.admin_name || 'sistema' %> · <%= U.fmtDate(l.created_at, true) %></span></li><% }) %></ul><% } else { %><p class="muted">Sem registros.</p><% } %></div>
+</div>
+<div class="card" style="border-color:var(--danger)"><h2>Excluir empresa</h2>
+  <p class="small muted">Remove a empresa, anúncios, máquinas e mídias de forma permanente. Digite o nome exato da empresa para confirmar.</p>
+  <form method="post" action="/admin/empresas/<%= c.id %>/excluir" class="row"><input type="hidden" name="_csrf" value="<%= csrf() %>"><label class="sr-only" for="cf">Nome para confirmar</label><input id="cf" name="confirm" autocomplete="off" style="max-width:320px" placeholder="<%= c.name %>"><button class="btn btn-danger" type="submit">Excluir definitivamente</button></form></div>
+<%- include('../partials/panel-end') %>

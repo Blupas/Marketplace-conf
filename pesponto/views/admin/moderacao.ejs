@@ -1,0 +1,12 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Mídias e registros' }) %>
+<div class="card"><h2>Mídias recentes</h2><p class="small muted">Oculte ou exclua fotos e vídeos impróprios. A empresa vê quando um item foi ocultado.</p>
+  <% if (media.length) { %><div class="thumbs"><% media.forEach((m) => { %><div class="thumb-card <%= m.hidden ? 'is-hidden' : '' %>">
+    <% if (m.kind === 'imagem') { %><img src="<%= img(m.thumb || m.path) %>" alt="<%= m.caption || 'Foto de ' + m.company_name %>" loading="lazy"><% } else { %><div style="aspect-ratio:4/3;display:grid;place-items:center;background:var(--denim-100)"><span class="pill">vídeo</span></div><% } %>
+    <div class="cap-row"><span class="small"><a href="/admin/empresas/<%= m.company_id %>"><%= m.company_name %></a><%= m.hidden ? ' · oculta' : '' %></span>
+      <form method="post" action="/admin/midia/<%= m.id %>" class="row" style="gap:.3rem"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+        <button class="btn btn-sm" name="action" value="<%= m.hidden ? 'exibir' : 'ocultar' %>" type="submit"><%= m.hidden ? 'Reexibir' : 'Ocultar' %></button>
+        <button class="btn btn-sm btn-danger" name="action" value="excluir" type="submit">Excluir</button></form></div></div><% }) %></div>
+  <% } else { %><p class="muted">Nenhuma mídia enviada.</p><% } %></div>
+<div class="card"><h2>Registro de moderação</h2>
+  <% if (logs.length) { %><div class="table-scroll"><table class="table"><thead><tr><th>Quando</th><th>Ação</th><th>Empresa</th><th>Por</th><th>Observação</th></tr></thead><tbody><% logs.forEach((l) => { %><tr><td class="small"><%= U.fmtDate(l.created_at, true) %></td><td><%= l.action %></td><td><%= l.company_name || '—' %></td><td class="small"><%= l.admin_name || 'sistema' %></td><td class="small"><%= l.note || '' %></td></tr><% }) %></tbody></table></div><% } else { %><p class="muted">Sem registros.</p><% } %></div>
+<%- include('../partials/panel-end') %>

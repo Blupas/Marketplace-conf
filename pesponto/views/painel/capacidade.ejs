@@ -1,0 +1,29 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Capacidade produtiva' }) %>
+<p class="muted">Preencha só o que você sabe. Campos em branco aparecem como “não informado” na sua página, sem ser tratados como confirmados. Os três números abaixo são mostrados separadamente.</p>
+<form method="post" action="/painel/capacidade" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrf() %>">
+  <fieldset><legend>Volume mensal (peças)</legend>
+    <div class="field-row">
+      <div class="field"><label for="c-avg">Produção histórica média</label><input id="c-avg" name="avg_monthly" type="number" min="0" inputmode="numeric" value="<%= cap.avg_monthly ?? '' %>"><p class="hint">O que a empresa realmente produz, em média, por mês.</p></div>
+      <div class="field"><label for="c-max">Capacidade máxima estimada</label><input id="c-max" name="max_monthly" type="number" min="0" inputmode="numeric" value="<%= cap.max_monthly ?? '' %>"><p class="hint">O máximo que estima conseguir produzir.</p></div>
+      <div class="field"><label for="c-av">Disponível para novos pedidos</label><input id="c-av" name="available_monthly" type="number" min="0" inputmode="numeric" value="<%= cap.available_monthly ?? '' %>"><p class="hint">Capacidade livre agora. Atualize com frequência.</p></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>Ritmo e equipe</legend>
+    <div class="field-row">
+      <div class="field"><label for="c-day">Produção por dia</label><input id="c-day" name="per_day" type="number" min="0" value="<%= cap.per_day ?? '' %>"></div>
+      <div class="field"><label for="c-shift">Produção por turno</label><input id="c-shift" name="per_shift" type="number" min="0" value="<%= cap.per_shift ?? '' %>"></div>
+      <div class="field"><label for="c-staff">Funcionários na produção</label><input id="c-staff" name="production_staff" type="number" min="0" value="<%= cap.production_staff ?? '' %>"></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>Pedidos</legend>
+    <div class="field-row">
+      <div class="field"><label for="c-lote">Lote mínimo (peças)</label><input id="c-lote" name="min_batch" type="number" min="0" value="<%= cap.min_batch ?? '' %>"></div>
+      <div class="field"><label for="c-prazo">Prazo médio (dias)</label><input id="c-prazo" name="lead_time_days" type="number" min="0" value="<%= cap.lead_time_days ?? '' %>"></div>
+    </div>
+    <div class="field"><label for="c-pieces">Tipos de peças produzidas</label><input id="c-pieces" name="piece_types" list="dl-p" value="<%= cap.piece_types || '' %>" placeholder="Separe por vírgula. Ex.: calça jeans, bermuda"><datalist id="dl-p"><% pieces.forEach((p) => { %><option value="<%= p %>"><% }) %></datalist></div>
+    <div class="field"><label for="c-notes">Observações</label><textarea id="c-notes" name="notes" maxlength="600"><%= cap.notes || '' %></textarea></div>
+  </fieldset>
+  <button class="btn btn-primary btn-lg" type="submit">Salvar capacidade</button>
+</form>
+<%- include('../partials/panel-end') %>

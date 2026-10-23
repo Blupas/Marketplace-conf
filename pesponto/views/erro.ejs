@@ -1,0 +1,8 @@
+<%- include('partials/head') %>
+<section class="err-page">
+  <p class="code"><%= locals.code || '' %></p>
+  <h1><%= title %></h1>
+  <p class="muted"><%= message %></p>
+  <p class="row" style="justify-content:center"><% if (locals.back) { %><a class="btn btn-primary" href="<%= back %>">Voltar e corrigir</a><% } else { %><a class="btn btn-primary" href="/">Ir para o início</a><% } %><a class="btn" href="/confeccoes">Encontrar confecções</a></p>
+</section>
+<%- include('partials/footer') %>

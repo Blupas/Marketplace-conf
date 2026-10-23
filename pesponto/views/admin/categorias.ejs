@@ -1,0 +1,19 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Categorias' }) %>
+<div class="card"><h2>Nova categoria</h2>
+  <form method="post" action="/admin/categorias" class="field-row"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field"><label class="req" for="n-name">Nome</label><input id="n-name" name="name" maxlength="80" required></div>
+    <div class="field"><label for="n-kind">Tipo</label><select id="n-kind" name="kind"><option value="empresa">Tipo de empresa</option><option value="segmento">Segmento</option><option value="servico">Serviço</option></select></div>
+    <div class="field"><label for="n-desc">Descrição</label><input id="n-desc" name="description" maxlength="200"></div>
+    <div class="field" style="align-self:end"><button class="btn btn-primary" type="submit">Adicionar</button></div></form></div>
+<div class="card"><p class="small muted">A ordem define a posição nos filtros e no menu. Categorias em uso não podem ser excluídas, apenas desativadas.</p>
+<div class="table-scroll"><table class="table"><thead><tr><th style="width:70px">Ordem</th><th>Nome</th><th class="hide-sm">Descrição</th><th>Uso</th><th>Ativa</th><th></th></tr></thead><tbody>
+<% list.forEach((k) => { %><tr><form method="post" action="/admin/categorias/<%= k.id %>" id="k<%= k.id %>"><input type="hidden" name="_csrf" value="<%= csrf() %>"></form>
+  <td><label class="sr-only" for="p<%= k.id %>">Ordem</label><input id="p<%= k.id %>" form="k<%= k.id %>" name="position" type="number" value="<%= k.position %>" style="min-height:36px"></td>
+  <td><label class="sr-only" for="m<%= k.id %>">Nome</label><input id="m<%= k.id %>" form="k<%= k.id %>" name="name" value="<%= k.name %>" maxlength="80" style="min-height:36px"><input type="hidden" form="k<%= k.id %>" name="icon" value="<%= k.icon || '' %>"></td>
+  <td class="hide-sm"><label class="sr-only" for="d<%= k.id %>">Descrição</label><input id="d<%= k.id %>" form="k<%= k.id %>" name="description" value="<%= k.description || '' %>" maxlength="200" style="min-height:36px"></td>
+  <td class="small"><%= k.companies %> emp. · <%= k.services %> anún.</td>
+  <td><label class="sr-only" for="a<%= k.id %>">Ativa</label><select id="a<%= k.id %>" form="k<%= k.id %>" name="active" style="min-height:36px"><option value="1" <%= k.active ? 'selected' : '' %>>Sim</option><option value="0" <%= k.active ? '' : 'selected' %>>Não</option></select></td>
+  <td class="actions"><button class="btn btn-sm" form="k<%= k.id %>" type="submit">Salvar</button>
+    <form method="post" action="/admin/categorias/<%= k.id %>/excluir" class="inline-form" data-confirm="Excluir a categoria “<%= k.name %>”?"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-sm btn-danger" type="submit" <%= k.companies || k.services ? 'disabled' : '' %>>Excluir</button></form></td></tr>
+<% }) %></tbody></table></div></div>
+<%- include('../partials/panel-end') %>

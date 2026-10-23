@@ -1,0 +1,16 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Planos e destaques' }) %>
+<div class="alert alert-info">Cobrança está <strong><%= config.billingEnabled ? 'ligada' : 'desligada' %></strong> (variável BILLING_ENABLED). Enquanto os planos estiverem como “em breve”, todas as empresas usam o anúncio gratuito e nada é cobrado. Não há integração de pagamento no código: estes campos só preparam a futura oferta.</div>
+<div class="stack"><% list.forEach((p) => { const feats = JSON.parse(p.features || '[]'); %>
+<form class="card" method="post" action="/admin/planos/<%= p.id %>" style="margin:0"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+  <div class="row between"><h2 style="margin:0"><%= p.name %></h2><span class="small muted"><%= p.companies %> empresa(s)</span></div>
+  <div class="field-row" style="margin-top:.8rem">
+    <div class="field"><label for="pn<%= p.id %>">Nome</label><input id="pn<%= p.id %>" name="name" value="<%= p.name %>" maxlength="60"></div>
+    <div class="field"><label for="pp<%= p.id %>">Preço mensal (R$)</label><input id="pp<%= p.id %>" name="price" value="<%= (p.price_cents / 100).toFixed(2).replace('.', ',') %>" inputmode="decimal"></div>
+    <div class="field"><label for="pb<%= p.id %>">Peso na busca (0 a 10)</label><input id="pb<%= p.id %>" name="search_boost" type="number" min="0" max="10" value="<%= p.search_boost %>"></div></div>
+  <div class="field"><label for="pd<%= p.id %>">Descrição</label><input id="pd<%= p.id %>" name="description" value="<%= p.description || '' %>" maxlength="300"></div>
+  <div class="field"><label for="pf<%= p.id %>">Recursos (um por linha)</label><textarea id="pf<%= p.id %>" name="features" style="min-height:90px"><%= feats.join('\n') %></textarea></div>
+  <label class="check"><input type="checkbox" name="available" value="1" <%= p.available ? 'checked' : '' %>> Disponível para contratação (desmarcado = “em breve”)</label>
+  <button class="btn btn-primary" type="submit">Salvar plano</button></form><% }) %></div>
+<div class="card" style="margin-top:1.25rem"><h2>Empresas em destaque agora</h2>
+  <% if (featured.length) { %><ul><% featured.forEach((c) => { %><li><a href="/admin/empresas/<%= c.id %>"><%= c.name %></a><%= c.featured_until ? ' · até ' + U.fmtDate(c.featured_until) : ' · sem data final' %></li><% }) %></ul><% } else { %><p class="muted">Nenhuma empresa em destaque. Ative em “Empresas”.</p><% } %></div>
+<%- include('../partials/panel-end') %>

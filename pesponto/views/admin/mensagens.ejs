@@ -1,0 +1,6 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Mensagens de contato' }) %>
+<% if (!list.length) { %><div class="empty"><h3>Nenhuma mensagem</h3></div><% } %>
+<div class="stack"><% list.forEach((m) => { %><article class="card" style="margin:0;opacity:<%= m.handled ? .7 : 1 %>"><div class="row between"><div><strong><%= m.name %></strong> · <a href="mailto:<%= m.email %>"><%= m.email %></a><br><span class="small muted"><%= U.fmtDate(m.created_at, true) %></span></div>
+  <form method="post" action="/admin/mensagens/<%= m.id %>"><input type="hidden" name="_csrf" value="<%= csrf() %>"><input type="hidden" name="handled" value="<%= m.handled ? 0 : 1 %>"><button class="btn btn-sm" type="submit"><%= m.handled ? 'Reabrir' : 'Marcar como respondida' %></button></form></div>
+  <p style="white-space:pre-line;margin:.8rem 0 0"><%= m.message %></p></article><% }) %></div>
+<%- include('../partials/panel-end') %>

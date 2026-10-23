@@ -1,0 +1,12 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Usuários' }) %>
+<form class="row" method="get" action="/admin/usuarios" style="margin-bottom:1rem"><label class="sr-only" for="u-q">Buscar</label><input id="u-q" name="q" value="<%= q %>" placeholder="Nome ou e-mail" style="max-width:300px">
+  <label class="sr-only" for="u-r">Perfil</label><select id="u-r" name="role" style="width:auto"><option value="">Todos os perfis</option><option value="buscador" <%= role === 'buscador' ? 'selected' : '' %>>Buscador</option><option value="anunciante" <%= role === 'anunciante' ? 'selected' : '' %>>Anunciante</option><option value="admin" <%= role === 'admin' ? 'selected' : '' %>>Administrador</option></select><button class="btn" type="submit">Filtrar</button></form>
+<div class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Conta</th><th class="hide-sm">Último acesso</th><th></th></tr></thead><tbody>
+<% list.forEach((u) => { %><tr><td><strong><%= u.name %></strong><br><span class="small muted"><%= u.email %><%= u.companies ? ' · ' + u.companies + ' empresa(s)' : '' %></span></td>
+  <td colspan="3"><form method="post" action="/admin/usuarios/<%= u.id %>" class="row" style="flex-wrap:nowrap"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <label class="sr-only" for="r-<%= u.id %>">Perfil</label><select id="r-<%= u.id %>" name="role" style="width:auto;min-height:36px"><% ['buscador', 'anunciante', 'admin'].forEach((r) => { %><option value="<%= r %>" <%= u.role === r ? 'selected' : '' %>><%= r %></option><% }) %></select>
+    <label class="sr-only" for="a-<%= u.id %>">Conta</label><select id="a-<%= u.id %>" name="active" style="width:auto;min-height:36px"><option value="1" <%= u.active ? 'selected' : '' %>>Ativa</option><option value="0" <%= u.active ? '' : 'selected' %>>Desativada</option></select>
+    <span class="small muted hide-sm"><%= u.last_login_at ? U.timeAgo(u.last_login_at) : 'nunca' %></span></td>
+  <td class="actions"><button class="btn btn-sm" type="submit">Salvar</button></form></td></tr>
+<% }) %></tbody></table></div></div>
+<%- include('../partials/panel-end') %>

@@ -1,0 +1,8 @@
+<%- include('../partials/head') %>
+<div class="auth-wrap"><div class="auth-card">
+  <h1>Anunciar minha empresa</h1>
+  <p class="muted">Sua conta hoje é de quem procura fornecedores. Para criar a página de uma confecção, facção, lavanderia ou fornecedor, ative o perfil de anunciante. É gratuito e você continua podendo pesquisar e favoritar.</p>
+  <form method="post" action="/painel/ativar"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Ativar perfil de anunciante</button></form>
+</div></div>
+<%- include('../partials/footer') %>

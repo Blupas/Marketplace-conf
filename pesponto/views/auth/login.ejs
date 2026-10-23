@@ -1,0 +1,16 @@
+<%- include('../partials/head') %>
+<div class="auth-wrap"><div class="auth-card">
+  <h1>Entrar</h1>
+  <% if (query.senha === 'ok') { %><div class="alert alert-ok" role="status">Senha alterada. Entre com a nova senha.</div><% } %>
+  <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+  <form method="post" action="/entrar" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrf() %>"><input type="hidden" name="next" value="<%= next %>">
+    <div class="field"><label for="l-e">E-mail</label><input id="l-e" type="email" name="email" value="<%= email %>" required autocomplete="email" autofocus></div>
+    <div class="field"><label for="l-p">Senha</label><input id="l-p" type="password" name="password" required autocomplete="current-password"></div>
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Entrar</button>
+  </form>
+  <p class="small" style="margin-top:1rem"><a href="/esqueci-senha">Esqueci minha senha</a></p>
+  <hr>
+  <p class="small" style="margin:0">Ainda não tem conta? <a href="/cadastro<%= next ? '?next=' + encodeURIComponent(next) : '' %>">Criar conta gratuita</a></p>
+</div></div>
+<%- include('../partials/footer') %>

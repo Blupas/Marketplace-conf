@@ -1,0 +1,34 @@
+<%- include('partials/head') %>
+<div class="page-head"><div class="wrap"><h1>Comparar confecções</h1><p>Compare estrutura, capacidade, processo e contatos lado a lado. Selecione até 4 empresas nos resultados da busca.</p></div></div>
+<div class="wrap" style="padding:1.5rem 0 4rem">
+  <% if (items.length < 1) { %>
+    <div class="empty" data-compare-empty><h3>Nenhuma empresa selecionada</h3><p class="muted">Marque “Comparar” nos cards ou no perfil das empresas. Elas ficam salvas neste navegador.</p><a class="btn btn-primary" href="/confeccoes">Encontrar confecções</a></div>
+  <% } else { %>
+  <% if (items.length === 1) { %><div class="alert alert-info">Selecione ao menos mais uma empresa para comparar. <a href="/confeccoes">Voltar à busca</a>.</div><% } %>
+  <div class="table-scroll"><table class="compare-table">
+    <caption class="sr-only">Comparação entre <%= items.length %> empresas</caption>
+    <thead><tr><th scope="col"><span class="sr-only">Critério</span></th>
+      <% items.forEach((it) => { %><th scope="col">
+        <div class="co-h"><% if (it.logo) { %><img src="<%= img(it.logo) %>" alt="" width="44" height="44"><% } %><a href="/empresa/<%= it.slug %>"><%= it.name %></a></div>
+        <button type="button" class="btn btn-sm btn-ghost" data-compare-remove="<%= it.id %>"><%- icon('x') %> Remover</button></th><% }) %></tr></thead>
+    <tbody>
+      <tr><th scope="row">Localização</th><% items.forEach((it) => { %><td><%= it.pa.city ? it.pa.city + ' – ' + it.pa.state : 'não informado' %><% if (it.pa.neighborhood) { %><br><span class="muted small"><%= it.pa.neighborhood %></span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Categorias</th><% items.forEach((it) => { %><td><%= it.categories.map((k) => k.name).join(', ') || '—' %></td><% }) %></tr>
+      <tr><th scope="row">Serviços oferecidos</th><% items.forEach((it) => { %><td><% if (it.services.length) { %><ul><% it.services.slice(0, 6).forEach((s) => { %><li><a href="/anuncio/<%= s.id %>/<%= s.slug %>"><%= s.name %></a></li><% }) %></ul><% } else { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Tipos de peças</th><% items.forEach((it) => { %><td><%= it.pieces.length ? it.pieces.join(', ') : '' %><% if (!it.pieces.length) { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Máquinas</th><% items.forEach((it) => { %><td><% if (it.machine_total > 0) { %><strong><%= U.fmtInt(it.machine_total) %> no total</strong><ul><% it.machineTypes.slice(0, 8).forEach(([n, q]) => { %><li><%= q %> × <%= n %></li><% }) %></ul><% } else { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Produção histórica (mês)</th><% items.forEach((it) => { %><td><%= it.avg_monthly ? U.fmtInt(it.avg_monthly) + ' peças' : '' %><% if (!it.avg_monthly) { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Capacidade máxima (mês)</th><% items.forEach((it) => { %><td><%= it.max_monthly ? U.fmtInt(it.max_monthly) + ' peças' : '' %><% if (!it.max_monthly) { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Disponível agora</th><% items.forEach((it) => { %><td><%= it.availability ? cat.AVAIL_LABEL[it.availability] : '' %><% if (it.available_monthly != null) { %><br><span class="small"><%= U.fmtInt(it.available_monthly) %> peças/mês livres</span><% } %><% if (!it.availability) { %><span class="na">não informado</span><% } %><% if (it.availability_updated_at) { %><br><span class="muted small">atualizado em <%= U.fmtDate(it.availability_updated_at) %></span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Etapas internas</th><% items.forEach((it) => { %><td><% if (it.steps_total) { %><strong><%= it.stepsInt.length %> de <%= it.steps_total %></strong><ul><% it.stepsInt.forEach((s) => { %><li><%= s.name %></li><% }) %></ul><% if (it.stepsOut.length) { %><span class="muted small">Terceiriza: <%= it.stepsOut.map((s) => s.name).join(', ') %></span><% } %><% } else { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Quantidade mínima por pedido</th><% items.forEach((it) => { const lot = it.min_batch || (it.c.capacity && it.c.capacity.min_batch); %><td><%= lot ? U.fmtInt(lot) + ' peças' : '' %><% if (!lot) { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Estrutura</th><% items.forEach((it) => { %><td><% const bits = [it.c.employees && U.fmtInt(it.c.employees) + ' funcionários', it.c.shifts && 'Turnos: ' + it.c.shifts, it.c.hours && 'Horário: ' + it.c.hours].filter(Boolean); %><%= bits.join(' · ') %><% if (!bits.length) { %><span class="na">não informado</span><% } %></td><% }) %></tr>
+      <tr><th scope="row">Contatos</th><% items.forEach((it) => { %><td>
+        <% if (it.hasWa) { %><a class="btn btn-wa btn-sm" href="/ir/whatsapp/<%= it.id %>" target="_blank" rel="noopener nofollow"><%- icon('whatsapp') %> WhatsApp</a><br><% } %>
+        <% if (it.phone) { %><span class="small"><%= U.formatPhone(it.phone) %></span><br><% } %><% if (it.email) { %><span class="small" style="overflow-wrap:anywhere"><%= it.email %></span><br><% } %>
+        <a class="small" href="/empresa/<%= it.slug %>#orcamento">Solicitar orçamento</a></td><% }) %></tr>
+    </tbody></table></div>
+  <p class="declared" style="margin-top:1rem">Os dados são declarados pelas empresas. “Não informado” significa que a empresa não preencheu a informação.</p>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

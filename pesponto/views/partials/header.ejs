@@ -1,0 +1,37 @@
+<% const _p = locals.path || '/';
+   const _nav = [['/', 'Início'], ['/confeccoes', 'Encontrar Confecções'], ['/servicos', 'Serviços'], ['/produtos', 'Produtos'], ['/mapa', 'Mapa'], ['/anunciar', 'Anunciar']];
+   const _act = (h) => (h === '/' ? _p === '/' : _p === h || _p.startsWith(h + '/')); %>
+<% if (locals.site.demo_banner === '1' && locals.hasDemo) { %>
+<div class="demo-strip" role="note">Ambiente de demonstração: as empresas, contatos e números exibidos são <strong>fictícios</strong>, criados só para testar a plataforma.</div>
+<% } %>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label="<%= site.name %> — página inicial">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#14264A"/><path d="M11 31V9h10.5a6.5 6.5 0 0 1 0 13H11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M5 35h30" stroke="#E4B33C" stroke-width="2.2" stroke-dasharray="3.5 3" stroke-linecap="round"/></svg>
+      <span class="brand-name"><%= site.name %></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-principal"><%- icon('menu') %><span>Menu</span></button>
+    <nav id="menu-principal" class="main-nav" aria-label="Principal">
+      <ul>
+        <% _nav.forEach(([href, label]) => { %><li><a href="<%= href %>" <%- _act(href) ? 'aria-current="page"' : '' %>><%= label %></a></li><% }) %>
+      </ul>
+      <div class="nav-user">
+        <% if (locals.user) { %>
+          <details class="user-menu">
+            <summary><%- icon('user') %><span><%= user.name.split(' ')[0] %></span><%- icon('chevron', 'i-sm') %></summary>
+            <div class="menu-pop">
+              <% if (user.role === 'admin') { %><a href="/admin">Administração</a><% } %>
+              <% if (user.role === 'anunciante') { %><a href="/painel">Painel da empresa</a><% } %>
+              <% if (user.role === 'buscador') { %><a href="/painel/ativar-info">Anunciar minha empresa</a><% } %>
+              <a href="/favoritos">Favoritos</a>
+              <a href="/conta">Minha conta</a>
+              <form method="post" action="/sair"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button type="submit">Sair</button></form>
+            </div>
+          </details>
+        <% } else { %>
+          <a class="btn btn-ghost btn-sm" href="/entrar<%= _p !== '/entrar' && _p !== '/cadastro' ? '?next=' + encodeURIComponent(locals.currentUrl || '/') : '' %>">Entrar</a>
+        <% } %>
+      </div>
+    </nav>
+  </div>
+</header>

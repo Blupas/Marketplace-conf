@@ -1,0 +1,10 @@
+<%# params: page, pages, baseQs (querystring sem page) %>
+<% if (pages > 1) {
+  const _href = (p) => '?' + (baseQs ? baseQs + '&' : '') + 'page=' + p;
+  const _list = []; for (let p = 1; p <= pages; p++) { if (p === 1 || p === pages || Math.abs(p - page) <= 1) _list.push(p); else if (_list[_list.length - 1] !== '…') _list.push('…'); } %>
+<nav class="pagination" aria-label="Paginação">
+  <% if (page > 1) { %><a href="<%= _href(page - 1) %>" rel="prev">Anterior</a><% } %>
+  <% _list.forEach((p) => { if (p === '…') { %><span class="gap">…</span><% } else if (p === page) { %><span aria-current="page"><%= p %></span><% } else { %><a href="<%= _href(p) %>" aria-label="Página <%= p %>"><%= p %></a><% } }) %>
+  <% if (page < pages) { %><a href="<%= _href(page + 1) %>" rel="next">Próxima</a><% } %>
+</nav>
+<% } %>

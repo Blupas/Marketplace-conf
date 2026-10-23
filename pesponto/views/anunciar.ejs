@@ -1,0 +1,34 @@
+<%- include('partials/head') %>
+<div class="page-head"><div class="wrap"><h1>Anuncie sua confecção gratuitamente</h1><p>Uma página comercial completa para mostrar sua estrutura de verdade — máquinas, processo, capacidade e localização — e receber contatos direto no seu WhatsApp.</p>
+  <p style="margin-top:1rem"><a class="btn btn-gold btn-lg" href="/cadastro?tipo=anunciante">Cadastrar minha empresa</a></p></div></div>
+<section class="section"><div class="wrap">
+  <div class="section-head"><div><h2>Como funciona</h2></div></div>
+  <ol class="steps-howto">
+    <li><h3>Crie sua conta</h3><p class="muted">Cadastro gratuito com e-mail e senha.</p></li>
+    <li><h3>Monte a página da empresa</h3><p class="muted">Dados, contatos, máquinas, etapas de produção, capacidade, fotos e serviços.</p></li>
+    <li><h3>Envie para análise</h3><p class="muted">Nossa equipe confere se o perfil está completo e sem informações inadequadas.</p></li>
+    <li><h3>Receba contatos</h3><p class="muted">Clientes chamam direto no WhatsApp ou pedem orçamento. Você acompanha as estatísticas no painel.</p></li>
+  </ol>
+</div></section>
+<section class="section section-alt"><div class="wrap">
+  <div class="section-head"><div><h2>O que você pode cadastrar</h2></div></div>
+  <div class="grid grid-3">
+    <div class="card"><h3>Estrutura produtiva</h3><p class="muted">Cada máquina com quantidade, marca, modelo e setor, inclusive equipamentos personalizados.</p></div>
+    <div class="card"><h3>Capacidade com transparência</h3><p class="muted">Produção histórica, capacidade máxima e disponibilidade atual aparecem separadas. O que você não preencher aparece como “não informado”.</p></div>
+    <div class="card"><h3>Processo e serviços</h3><p class="muted">Etapas na ordem real do seu fluxo, indicando o que é interno e o que é terceirizado, e quantos serviços e produtos quiser.</p></div>
+    <div class="card"><h3>Localização controlada</h3><p class="muted">Divulgue o endereço exato, uma localização aproximada ou só a cidade — ideal para quem trabalha em endereço residencial.</p></div>
+    <div class="card"><h3>Estatísticas</h3><p class="muted">Visitas, cliques no WhatsApp, visualizações dos anúncios e solicitações de orçamento.</p></div>
+    <div class="card"><h3>Sem comissão</h3><p class="muted">A plataforma não vende nem intermedeia pagamentos. A negociação é direta entre você e o cliente.</p></div>
+  </div>
+</div></section>
+<section class="section"><div class="wrap">
+  <div class="section-head"><div><h2>Planos</h2><p>No lançamento, todos os recursos acima são gratuitos. Os planos abaixo estão previstos e ainda não estão disponíveis para contratação.</p></div></div>
+  <div class="plans"><% plans.forEach((p) => { %>
+    <div class="plan <%= p.available ? 'is-current' : '' %>"><h3><%= p.name %></h3>
+      <p class="muted"><%= p.description %></p>
+      <p class="price" style="font-size:1.4rem"><%= p.available ? 'Grátis' : 'Em breve' %></p>
+      <ul><% p.features.forEach((f) => { %><li><%= f %></li><% }) %></ul>
+      <% if (p.available) { %><a class="btn btn-primary" href="/cadastro?tipo=anunciante">Começar agora</a><% } else { %><span class="btn" aria-disabled="true">Em breve</span><% } %></div>
+  <% }) %></div>
+</div></section>
+<%- include('partials/footer') %>

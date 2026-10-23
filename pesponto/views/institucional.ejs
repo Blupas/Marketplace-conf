@@ -1,0 +1,55 @@
+<%- include('partials/head') %>
+<% const _who = site.legal_name || '[RAZÃO SOCIAL DA EMPRESA OPERADORA]'; const _cnpj = site.legal_cnpj || '[CNPJ]'; const _mail = site.dpo_email || site.contact_email || config.contactEmail; %>
+<div class="page-head"><div class="wrap"><h1><%= title %></h1></div></div>
+<div class="wrap prose" style="padding:1.5rem 0 4rem">
+<% if (page === 'sobre') { %>
+  <p style="white-space:pre-line"><%= site.about_text %></p>
+  <h2>O que a plataforma é — e o que não é</h2>
+  <ul>
+    <li><strong>É uma vitrine</strong>: reúne empresas da cadeia produtiva da moda e mostra, em páginas padronizadas, o que cada uma tem e faz.</li>
+    <li><strong>Não é uma loja</strong>: não há carrinho, checkout, pagamento ou comissão. O contato e a negociação acontecem diretamente entre você e a empresa.</li>
+    <li><strong>Não avalia empresas</strong>: não existem notas ou avaliações. Mostramos somente o que foi cadastrado, e o que não foi preenchido aparece como “não informado”.</li>
+  </ul>
+  <h2>Como tratamos as informações</h2>
+  <p>As informações de cada página são declaradas pelas próprias empresas. Nossa equipe analisa os cadastros antes da publicação e remove conteúdos que violem os <a href="/termos">Termos de uso</a>, mas não verifica máquinas, capacidades ou prazos. Antes de fechar negócio, confirme tudo diretamente com a empresa. Encontrou algo errado? Use o botão “Denunciar este anúncio” na página da empresa.</p>
+  <p><a class="btn btn-primary" href="/confeccoes">Encontrar confecções</a> <a class="btn" href="/anunciar">Anunciar minha empresa</a></p>
+
+<% } else if (page === 'termos') { %>
+  <p class="muted">Versão <%= config.termsVersion || '' %>. Ao criar uma conta ou usar a plataforma, você concorda com estes termos.</p>
+  <h2>1. Quem somos</h2><p><%= site.name %> é operada por <strong><%= _who %></strong>, CNPJ <%= _cnpj %> (“Plataforma”). Contato: <a href="mailto:<%= _mail %>"><%= _mail %></a>.</p>
+  <h2>2. Natureza do serviço</h2><p>A Plataforma é uma vitrine online que permite a empresas do setor têxtil e de confecção divulgarem seus produtos e serviços, e a interessados encontrá-las e contatá-las. <strong>Não vendemos produtos, não intermediamos pagamentos e não participamos da negociação</strong> entre as partes. Qualquer contratação ocorre fora da Plataforma, sob responsabilidade exclusiva de quem contrata e de quem presta o serviço.</p>
+  <h2>3. Cadastro e conta</h2><p>Você deve informar dados verdadeiros, manter sua senha em sigilo e ser maior de 18 anos ou representar legalmente a empresa. Visitantes podem pesquisar e ver anúncios sem conta; o cadastro é exigido para favoritos, para anunciar e para gerenciar dados pessoais.</p>
+  <h2>4. Regras para anunciantes</h2>
+  <ul><li>Publicar somente informações verdadeiras e atualizadas sobre a empresa, máquinas, capacidade, prazos e localização.</li><li>Não afirmar certificações, prêmios, clientes ou capacidades que não possua.</li><li>Ter direito de uso sobre textos, fotos, vídeos e logotipos enviados.</li><li>Manter a disponibilidade atualizada, se optar por informá-la.</li><li>Não usar a Plataforma para spam, golpes, coleta indevida de dados ou conteúdo ilegal, ofensivo ou enganoso.</li></ul>
+  <h2>5. Moderação</h2><p>Anúncios passam por análise antes de serem publicados e podem ser rejeitados, ocultados ou suspensos quando violarem estes termos, a lei ou direitos de terceiros, ou quando houver denúncia procedente. Sempre que possível informaremos o motivo.</p>
+  <h2>6. Responsabilidade</h2><p>As informações dos anúncios são de responsabilidade de quem os publica. A Plataforma não garante a veracidade de capacidades, prazos, preços ou qualidade, nem a conclusão de qualquer negócio. Na máxima extensão permitida pela lei, não respondemos por perdas decorrentes de negociações entre usuários. Recomendamos confirmar dados, solicitar amostras e formalizar a contratação por contrato.</p>
+  <h2>7. Planos e destaques</h2><p>O uso é gratuito no lançamento. Planos pagos, destaques e publicidade poderão ser oferecidos no futuro; qualquer cobrança será previamente informada e dependerá de contratação expressa.</p>
+  <h2>8. Propriedade intelectual</h2><p>A marca, o layout e o software da Plataforma pertencem à operadora. O conteúdo enviado continua sendo de quem o enviou, que nos concede licença não exclusiva para exibi-lo na Plataforma enquanto o anúncio estiver ativo.</p>
+  <h2>9. Encerramento</h2><p>Você pode excluir sua conta a qualquer momento em “Minha conta”. Podemos suspender contas que descumpram estes termos.</p>
+  <h2>10. Lei e foro</h2><p>Estes termos seguem as leis do Brasil. Fica eleito o foro do domicílio do consumidor, quando aplicável, ou o da sede da operadora nos demais casos.</p>
+
+<% } else { %>
+  <p class="muted">Versão <%= config.termsVersion || '' %>. Esta política explica como a <%= site.name %> trata dados pessoais, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018 — LGPD).</p>
+  <h2>1. Controlador e contato</h2><p>O controlador é <strong><%= _who %></strong>, CNPJ <%= _cnpj %>. Para exercer seus direitos ou tirar dúvidas, escreva para <a href="mailto:<%= _mail %>"><%= _mail %></a> ou use a <a href="/contato">página de contato</a>.</p>
+  <h2>2. Quais dados coletamos e para quê</h2>
+  <ul>
+    <li><strong>Conta</strong> (nome, e-mail, senha protegida por hash, perfil de uso): para criar e manter sua conta. Base legal: execução de contrato.</li>
+    <li><strong>Dados da empresa anunciante</strong> (razão social/nome fantasia, endereço, telefones, e-mail, redes, fotos): para exibir a página da empresa, publicados por escolha do anunciante, que controla o nível de detalhe da localização. Base legal: execução de contrato e consentimento.</li>
+    <li><strong>Solicitações de orçamento</strong> (nome, e-mail/telefone, mensagem): enviadas à empresa escolhida e exibidas ao painel dela, para que responda. Base legal: consentimento, dado no formulário.</li>
+    <li><strong>Favoritos</strong>: guardados em sua conta para facilitar consultas.</li>
+    <li><strong>Estatísticas de uso</strong> (visualizações, buscas, cliques em contato): registradas sem IP, sem identificação de pessoa e sem cookies de rastreamento, apenas para mostrar números agregados aos anunciantes e à administração. Base legal: legítimo interesse.</li>
+    <li><strong>Segurança</strong>: cookies essenciais de sessão e proteção contra fraudes e spam. Base legal: legítimo interesse e prevenção a fraudes.</li>
+    <li><strong>Localização</strong>: se você usar “Usar minha localização”, as coordenadas são enviadas apenas para ordenar resultados por distância e não são armazenadas.</li>
+  </ul>
+  <h2>3. Com quem compartilhamos</h2>
+  <p>Seus dados de contato em uma solicitação de orçamento são compartilhados somente com a empresa que você escolheu. Utilizamos provedores de infraestrutura e, para o mapa e a busca de endereços, serviços como OpenStreetMap/Nominatim e ViaCEP, que recebem o termo de busca e o seu endereço IP técnico. Não vendemos dados pessoais.</p>
+  <h2>4. Cookies</h2><p>Usamos apenas cookies essenciais: um de sessão (para manter você conectado) e um de segurança (proteção contra falsificação de formulários). Guardamos no seu navegador (armazenamento local) a lista de empresas marcadas para comparar. Não usamos cookies de publicidade nem de análise de terceiros.</p>
+  <h2>5. Por quanto tempo guardamos</h2><p>Mantemos os dados enquanto sua conta existir. Ao excluí-la, apagamos seus dados pessoais, exceto o que a lei nos obrigar a guardar. Solicitações de orçamento são mantidas enquanto a empresa destinatária estiver ativa ou até você pedir a exclusão.</p>
+  <h2>6. Seus direitos (art. 18 da LGPD)</h2>
+  <p>Você pode pedir confirmação do tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamentos, e a eliminação dos dados, além de revogar consentimentos. Em <a href="/conta">Minha conta</a> você pode editar seus dados, <strong>baixar uma cópia em JSON</strong> e <strong>excluir sua conta</strong>. Outros pedidos podem ser feitos pelo e-mail acima. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).</p>
+  <h2>7. Segurança</h2><p>Senhas são armazenadas com hash e sal; conexões devem usar HTTPS; o acesso a áreas restritas depende de perfil e permissão; fotos enviadas têm seus metadados (como GPS) removidos. Nenhum sistema é totalmente imune; em caso de incidente relevante, comunicaremos os afetados e a ANPD conforme a lei.</p>
+  <h2>8. Crianças e adolescentes</h2><p>A Plataforma é voltada a empresas e profissionais e não se destina a menores de 18 anos.</p>
+  <h2>9. Alterações</h2><p>Podemos atualizar esta política. Mudanças relevantes serão avisadas na Plataforma.</p>
+<% } %>
+</div>
+<%- include('partials/footer') %>

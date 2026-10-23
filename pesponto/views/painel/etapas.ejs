@@ -1,0 +1,26 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Etapas do processo produtivo' }) %>
+<% const stepItem = (s) => { %>
+  <li class="step-item <%= s.mode === 'nao_oferece' ? 'is-none' : '' %>">
+    <div class="handle"><button type="button" class="btn btn-sm btn-icon grip" data-move="up" aria-label="Mover etapa para cima"><%- icon('up') %></button><button type="button" class="btn btn-sm btn-icon grip" data-move="down" aria-label="Mover etapa para baixo"><%- icon('down') %></button></div>
+    <div class="fields">
+      <input type="hidden" name="step_key" value="<%= s.step_key || '' %>"><input type="hidden" name="position" value="0">
+      <div><label class="sr-only">Nome da etapa</label><input name="name" maxlength="120" value="<%= s.name %>" aria-label="Nome da etapa" required></div>
+      <div><label class="sr-only">Quem executa</label><select name="mode" aria-label="Quem executa"><% Object.entries(cat.MODE_LABEL).forEach(([k, v]) => { %><option value="<%= k %>" <%= s.mode === k ? 'selected' : '' %>><%= v %></option><% }) %></select></div>
+      <textarea name="description" maxlength="400" aria-label="Descrição da etapa" placeholder="Descreva como a empresa realiza esta etapa (opcional)"><%= s.description || '' %></textarea>
+    </div>
+    <button type="button" class="btn btn-sm btn-danger" data-remove-step aria-label="Remover etapa"><%- icon('trash') %></button>
+  </li>
+<% }; %>
+<p class="muted">Organize as etapas na ordem real do seu fluxo, com os botões de seta, e indique o que é feito internamente, o que é terceirizado e o que você não oferece. Isso aparece como uma linha do tempo na sua página.</p>
+<% if (!steps.length) { %>
+  <div class="card"><p>Você ainda não cadastrou etapas. Comece com as 12 etapas padrão e ajuste, ou adicione as suas.</p>
+    <form method="post" action="/painel/etapas/padrao"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-primary" type="submit">Usar as etapas padrão</button></form></div>
+<% } %>
+<form method="post" action="/painel/etapas">
+  <input type="hidden" name="_csrf" value="<%= csrf() %>">
+  <p class="sr-only" id="steps-live" role="status" aria-live="polite"></p>
+  <ol class="sortable" id="steps-list"><% steps.forEach((s) => { stepItem(s); }) %></ol>
+  <template id="step-template"><% stepItem({ step_key: '', name: '', description: '', mode: 'interna' }) %></template>
+  <div class="row" style="margin-top:1rem"><button class="btn" type="button" data-add-step><%- icon('plus') %> Adicionar etapa personalizada</button><button class="btn btn-primary" type="submit">Salvar etapas</button></div>
+</form>
+<%- include('../partials/panel-end') %>

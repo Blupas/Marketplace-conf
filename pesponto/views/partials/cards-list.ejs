@@ -1,0 +1,6 @@
+<% if (rows.length) { %>
+  <% rows.forEach((c) => { %><%- include('card-company', { c }) %><% }) %>
+  <p class="muted small" style="grid-column:1/-1">Mostrando as <%= rows.length %> mais próximas de <strong><%= label %></strong>. <a href="/confeccoes?<%= qs %>">Ver todas (<%= total %>) com filtros</a></p>
+<% } else { %>
+  <div class="empty" style="grid-column:1/-1"><h3>Nenhuma confecção encontrada</h3><p class="muted">Ainda não há empresas publicadas perto de <%= label %>. <a href="/confeccoes">Veja todas as empresas</a>.</p></div>
+<% } %>

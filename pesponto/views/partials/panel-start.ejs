@@ -1,0 +1,26 @@
+<%# params: area ('painel'|'admin'), heading, actions (html opcional) %>
+<%- include('head') %>
+<% const _area = locals.area || 'painel'; const _a = locals.panelActive || '';
+   const _items = _area === 'admin'
+     ? [['', 'Visão geral', 'map'], ['empresas', 'Empresas', 'camisa'], ['denuncias', 'Denúncias', 'flag'], ['usuarios', 'Usuários', 'user'], ['categorias', 'Categorias', 'estrela'], ['moderacao', 'Mídias e registros', 'image'], ['planos', 'Planos e destaques', 'estrela'], ['conteudo', 'Banners e textos', 'edit'], ['mensagens', 'Mensagens', 'mail']]
+     : [['', 'Visão geral', 'map'], ['empresa', 'Dados da empresa', 'camisa'], ['capacidade', 'Capacidade', 'engrenagem'], ['maquinas', 'Máquinas', 'engrenagem'], ['etapas', 'Etapas do processo', 'check'], ['servicos', 'Produtos e serviços', 'tesoura'], ['galeria', 'Fotos e vídeos', 'image'], ['contatos', 'Contatos recebidos', 'mail']]; %>
+<div class="wrap panel-layout">
+  <nav class="panel-nav" aria-label="<%= _area === 'admin' ? 'Administração' : 'Painel da empresa' %>">
+    <h2><%= _area === 'admin' ? 'Administração' : (locals.company ? company.name : 'Painel') %></h2>
+    <ul>
+      <% _items.forEach(([slug, label, ic]) => { if (_area === 'painel' && slug && !locals.company && slug !== 'empresa') return; %>
+        <li><a href="/<%= _area %><%= slug ? '/' + slug : '' %>" <%- _a === slug ? 'aria-current="page"' : '' %>><%- icon(ic) %> <%= label %>
+          <% if (_area === 'painel' && slug === 'contatos' && locals.newQuotes) { %><span class="badge"><%= newQuotes %></span><% } %>
+          <% if (_area === 'admin' && slug === 'empresas' && locals.pendingCount) { %><span class="badge"><%= pendingCount %></span><% } %>
+          <% if (_area === 'admin' && slug === 'denuncias' && locals.openReports) { %><span class="badge"><%= openReports %></span><% } %></a></li>
+      <% }) %>
+      <% if (_area === 'painel' && locals.company) { %><li><a href="/empresa/<%= company.slug %>"><%- icon('external') %> Ver página pública</a></li><% } %>
+      <li><a href="/conta"><%- icon('user') %> Minha conta</a></li>
+    </ul>
+  </nav>
+  <section class="panel-main" aria-labelledby="panel-h1">
+    <div class="panel-head"><h1 id="panel-h1"><%= locals.heading || title %></h1><div class="row"><%- locals.actions || '' %></div></div>
+    <% if (locals.okMsg) { %><div class="alert alert-ok" role="status"><%- icon('check') %> <%= okMsg %></div><% } %>
+    <% if (locals.query && query.erro && query.erro !== 'incompleto') { %><div class="alert alert-error" role="alert"><%= query.erro %></div><% } %>
+    <% if (locals.query && query.erro === 'incompleto') { %><div class="alert alert-error" role="alert">Complete os itens obrigatórios antes de enviar para análise.</div><% } %>
+    <% if (locals.errors && errors.length) { %><div class="alert alert-error" role="alert"><div><strong>Confira os campos:</strong><ul style="margin:.3rem 0 0;padding-left:1.1rem"><% errors.forEach((e) => { %><li><%= e %></li><% }) %></ul></div></div><% } %>

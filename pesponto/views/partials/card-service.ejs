@@ -1,0 +1,21 @@
+<%# params: s (linha de searchServices) %>
+<article class="sv-card">
+  <% if (s.photo) { %><div class="thumb"><img src="<%= img(s.photo) %>" alt="" loading="lazy" width="480" height="270"></div><% } %>
+  <div class="row" style="gap:.4rem">
+    <span class="pill"><%= s.kind === 'produto' ? 'Produto' : 'Serviço' %></span>
+    <% if (s.category_name) { %><span class="tag"><%= s.category_name %></span><% } %>
+    <% if (s.is_demo) { %><span class="pill pill-demo">Demonstração</span><% } %>
+  </div>
+  <h3><a href="/anuncio/<%= s.id %>/<%= s.slug %>"><%= s.name %></a></h3>
+  <% if (s.description) { %><p class="small" style="margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"><%= s.description %></p><% } %>
+  <ul class="sv-meta">
+    <% if (s.min_batch) { %><li>Lote mín.: <strong><%= U.fmtInt(s.min_batch) %> pç</strong></li><% } %>
+    <% if (s.lead_time_days) { %><li>Prazo: <strong><%= s.lead_time_days %> dias</strong></li><% } %>
+    <% if (s.price_min_cents != null) { %><li><span class="price"><%= U.money(s.price_min_cents) %><%= s.price_max_cents && s.price_max_cents !== s.price_min_cents ? ' a ' + U.money(s.price_max_cents) : '' %></span> <%= s.price_unit || '' %></li><% } %>
+  </ul>
+  <div class="sv-by"><% if (s.logo) { %><img src="<%= img(s.logo) %>" alt="" width="22" height="22" loading="lazy"><% } %><a href="/empresa/<%= s.company_slug %>" style="position:relative;z-index:2"><%= s.company_name %></a><% if (s.city) { %><span>· <%= s.city %>/<%= s.state %></span><% } %></div>
+  <div class="btn-row">
+    <a class="btn btn-wa btn-sm" href="/ir/whatsapp/<%= s.company_id %>?servico=<%= s.id %>" target="_blank" rel="noopener nofollow"><%- icon('whatsapp') %> WhatsApp</a>
+    <a class="btn btn-sm" href="/empresa/<%= s.company_slug %>?servico=<%= s.id %>#orcamento">Solicitar orçamento</a>
+  </div>
+</article>

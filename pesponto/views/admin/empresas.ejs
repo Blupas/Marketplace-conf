@@ -1,0 +1,16 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Empresas' }) %>
+<form class="row" method="get" action="/admin/empresas" style="margin-bottom:1rem">
+  <label class="sr-only" for="f-q">Buscar</label><input id="f-q" name="q" value="<%= q %>" placeholder="Nome da empresa ou e-mail do dono" style="max-width:320px">
+  <label class="sr-only" for="f-s">Situação</label><select id="f-s" name="status" style="width:auto"><option value="">Todas as situações</option><% Object.entries(cat.STATUS_LABEL).forEach(([k, v]) => { %><option value="<%= k %>" <%= status === k ? 'selected' : '' %>><%= v %> (<%= counts[k] || 0 %>)</option><% }) %></select>
+  <label class="check" style="margin:0"><input type="checkbox" name="demo" value="1" <%= demo ? 'checked' : '' %>> Só demonstração</label>
+  <button class="btn" type="submit">Filtrar</button></form>
+<div class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Empresa</th><th>Situação</th><th class="hide-sm">Cidade</th><th class="hide-sm">Dono</th><th>Atualizada</th><th></th></tr></thead><tbody>
+<% list.forEach((c) => { %><tr><td><strong><a href="/admin/empresas/<%= c.id %>"><%= c.name %></a></strong>
+  <% if (c.is_demo) { %><span class="pill pill-demo">demo</span><% } %><% if (c.featured) { %><span class="pill pill-warn">destaque</span><% } %><% if (c.reports) { %><span class="pill pill-danger"><%= c.reports %> denúncia(s)</span><% } %></td>
+  <td><span class="pill <%= c.status === 'aprovado' ? 'pill-ok' : c.status === 'pendente' ? 'pill-warn' : c.status === 'rascunho' ? 'pill-off' : 'pill-danger' %>"><%= cat.STATUS_LABEL[c.status] %></span></td>
+  <td class="hide-sm"><%= c.city ? c.city + ' – ' + c.state : '—' %></td><td class="hide-sm small"><%= c.is_demo ? '—' : (c.owner_email || '—') %></td><td class="small"><%= U.timeAgo(c.updated_at) %></td>
+  <td class="actions"><a class="btn btn-sm" href="/admin/empresas/<%= c.id %>">Abrir</a></td></tr>
+<% }) %>
+<% if (!list.length) { %><tr><td colspan="6" class="muted">Nenhuma empresa encontrada.</td></tr><% } %>
+</tbody></table></div></div>
+<%- include('../partials/panel-end') %>

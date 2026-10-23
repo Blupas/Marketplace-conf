@@ -1,0 +1,24 @@
+<%- include('partials/head') %>
+<div class="map-layout">
+  <aside class="map-side" aria-label="Filtros e lista">
+    <div><h1>Mapa de confecções</h1><p class="muted small" style="margin:.3rem 0 0">Marcadores mostram a localização informada pelas empresas. Algumas divulgam apenas uma posição aproximada.</p></div>
+    <form id="map-form" class="stack" novalidate>
+      <div class="field" style="margin:0"><label for="m-place">Buscar por cidade, bairro, estado ou CEP</label>
+        <div class="row" style="flex-wrap:nowrap"><input id="m-place" name="perto" type="search" placeholder="Ex.: Brusque, Bom Retiro ou 01130-000" value="<%= query.perto || '' %>"><button class="btn btn-primary btn-icon" type="submit" aria-label="Buscar local"><%- icon('search') %></button></div>
+        <button type="button" class="link-btn small" data-geo-map style="margin-top:.35rem"><%- icon('locate', 'i-sm') %> Usar minha localização</button></div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr;gap:.6rem">
+        <div class="field" style="margin:0"><label for="m-raio">Distância</label><select id="m-raio" name="raio"><option value="">Qualquer</option><% [25, 50, 100, 200, 500].forEach((r) => { %><option value="<%= r %>" <%= String(query.raio) === String(r) ? 'selected' : '' %>>até <%= r %> km</option><% }) %></select></div>
+        <div class="field" style="margin:0"><label for="m-uf">Estado</label><select id="m-uf" name="estado"><option value="">Todos</option><% states.forEach((u) => { %><option <%= query.estado === u ? 'selected' : '' %>><%= u %></option><% }) %></select></div>
+      </div>
+      <div class="field" style="margin:0"><label for="m-cat">Categoria ou tipo de serviço</label><select id="m-cat" name="categoria"><option value="">Todas</option><% cats.forEach((k) => { %><option value="<%= k.slug %>" <%= query.categoria === k.slug ? 'selected' : '' %>><%= k.name %></option><% }) %></select></div>
+      <div class="field" style="margin:0"><label for="m-q">Palavra-chave</label><input id="m-q" name="q" type="search" value="<%= query.q || '' %>" placeholder="Empresa, máquina, serviço…"></div>
+      <div class="field" style="margin:0"><label for="m-mq">Tipo de máquina</label><select id="m-mq" name="maquina"><option value="">Qualquer</option><% cat.MACHINE_TYPES.forEach((m) => { %><option value="<%= m[0] %>" <%= query.maquina === m[0] ? 'selected' : '' %>><%= m[1] %></option><% }) %></select></div>
+      <div class="row"><button class="btn btn-primary grow" type="submit">Atualizar mapa</button><button class="btn" type="reset" data-map-reset>Limpar</button></div>
+    </form>
+    <p class="map-status" id="map-status" role="status" aria-live="polite">Carregando empresas…</p>
+    <ul class="map-list" id="map-list"></ul>
+  </aside>
+  <div id="map" role="application" aria-label="Mapa interativo com as confecções"></div>
+</div>
+<script type="application/json" id="map-config"><%- JSON.stringify({ tile: config.tileUrl, query }).replace(/</g, '\\u003c') %></script>
+<%- include('partials/footer') %>

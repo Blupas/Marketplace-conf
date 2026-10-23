@@ -1,0 +1,36 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Máquinas e equipamentos' }) %>
+<div class="card">
+  <h2><%= edit ? 'Editar máquina' : 'Adicionar máquina' %></h2>
+  <form method="post" action="/painel/maquinas" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrf() %>"><% if (edit) { %><input type="hidden" name="id" value="<%= edit.id %>"><% } %>
+    <% const known = edit && types.some((t) => t[0] === edit.type); %>
+    <div class="field-row">
+      <div class="field"><label class="req" for="m-type">Tipo</label>
+        <select id="m-type" name="type"><option value="">Escolha…</option>
+          <% types.forEach((t) => { %><option value="<%= t[0] %>" data-name="<%= t[1] %>" data-sector="<%= t[2] %>" data-op="<%= t[3] %>" <%= edit && edit.type === t[0] ? 'selected' : '' %>><%= t[1] %></option><% }) %>
+          <option value="__outro" <%= edit && !known ? 'selected' : '' %>>Outro (personalizado)…</option></select></div>
+      <div class="field" id="m-custom-wrap" <%= edit && !known ? '' : 'hidden' %>><label for="m-custom">Tipo personalizado</label><input id="m-custom" name="type_custom" maxlength="60" value="<%= edit && !known ? edit.type : '' %>"></div>
+      <div class="field"><label class="req" for="m-name">Nome</label><input id="m-name" name="name" maxlength="100" value="<%= edit ? edit.name : '' %>"></div>
+      <div class="field" style="max-width:130px"><label class="req" for="m-qty">Quantidade</label><input id="m-qty" name="quantity" type="number" min="1" value="<%= edit ? edit.quantity : 1 %>"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="m-brand">Marca</label><input id="m-brand" name="brand" maxlength="60" value="<%= edit ? edit.brand || '' : '' %>"></div>
+      <div class="field"><label for="m-model">Modelo</label><input id="m-model" name="model" maxlength="60" value="<%= edit ? edit.model || '' : '' %>"></div>
+      <div class="field"><label for="m-sector">Setor</label><input id="m-sector" name="sector" maxlength="60" value="<%= edit ? edit.sector || '' : '' %>" placeholder="Costura, Corte, Lavanderia…"></div>
+    </div>
+    <div class="field"><label for="m-op">Operação realizada</label><input id="m-op" name="operation" maxlength="150" value="<%= edit ? edit.operation || '' : '' %>"></div>
+    <div class="field"><label for="m-photo">Foto do equipamento (opcional)</label><% if (edit && edit.photo) { %><img class="preview-logo" src="<%= img(edit.photo) %>" alt="Foto atual"><% } %><input id="m-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp"></div>
+    <div class="row"><button class="btn btn-primary" type="submit"><%= edit ? 'Salvar máquina' : 'Adicionar máquina' %></button><% if (edit) { %><a class="btn" href="/painel/maquinas">Cancelar</a><% } %></div>
+  </form>
+</div>
+<div class="card">
+  <h2>Suas máquinas <% if (list.length) { %><span class="muted" style="font-weight:400;font-size:1rem">· <%= total %> no total</span><% } %></h2>
+  <% if (list.length) { %>
+  <div class="table-scroll"><table class="table"><thead><tr><th>Máquina</th><th>Qtd.</th><th class="hide-sm">Marca / modelo</th><th class="hide-sm">Setor</th><th></th></tr></thead><tbody>
+    <% list.forEach((m) => { %><tr><td><strong><%= m.name %></strong><% if (m.operation) { %><br><span class="small muted"><%= m.operation %></span><% } %></td><td><%= m.quantity %></td><td class="hide-sm"><%= [m.brand, m.model].filter(Boolean).join(' ') %></td><td class="hide-sm"><%= m.sector || '' %></td>
+      <td class="actions"><a class="btn btn-sm" href="/painel/maquinas?editar=<%= m.id %>">Editar</a>
+        <form method="post" action="/painel/maquinas/<%= m.id %>/excluir" class="inline-form" data-confirm="Excluir esta máquina?"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-sm btn-danger" type="submit">Excluir</button></form></td></tr><% }) %>
+  </tbody></table></div>
+  <% } else { %><p class="muted">Nenhuma máquina cadastrada. Quem busca por equipamento só encontra empresas que informam o parque de máquinas.</p><% } %>
+</div>
+<%- include('../partials/panel-end') %>

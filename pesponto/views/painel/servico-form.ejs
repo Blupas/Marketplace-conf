@@ -1,0 +1,41 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: s ? 'Editar anúncio' : 'Novo anúncio' }) %>
+<% const val = (k, d = '') => (v && v[k] != null ? v[k] : d);
+   const priceVal = (k) => (v && v[k] != null && v[k] !== '' ? (String(v[k]).includes(',') || k.indexOf('_cents') < 0 ? v[k] : (v[k] / 100).toFixed(2).replace('.', ',')) : ''); %>
+<form method="post" action="/painel/servicos" enctype="multipart/form-data" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrf() %>"><% if (s) { %><input type="hidden" name="id" value="<%= s.id %>"><% } %>
+  <fieldset><legend>Informações principais</legend>
+    <div class="field-row">
+      <div class="field"><label for="s-kind">Tipo</label><select id="s-kind" name="kind"><option value="servico" <%= val('kind') !== 'produto' ? 'selected' : '' %>>Serviço</option><option value="produto" <%= val('kind') === 'produto' ? 'selected' : '' %>>Produto</option></select></div>
+      <div class="field"><label class="req" for="s-name">Nome</label><input id="s-name" name="name" required maxlength="120" value="<%= val('name') %>" placeholder="Ex.: Produção completa de jeans"></div>
+      <div class="field"><label for="s-cat">Categoria</label><select id="s-cat" name="category_id"><option value="">Sem categoria</option><% allCats.forEach((k) => { %><option value="<%= k.id %>" <%= String(val('category_id')) === String(k.id) ? 'selected' : '' %>><%= k.name %></option><% }) %></select></div>
+    </div>
+    <div class="field"><label for="s-desc">Descrição</label><textarea id="s-desc" name="description" maxlength="2000"><%= val('description') %></textarea></div>
+  </fieldset>
+  <fieldset><legend>Detalhes de produção</legend>
+    <div class="field-row">
+      <div class="field"><label for="s-fab">Tecidos / materiais</label><input id="s-fab" name="fabrics" maxlength="200" value="<%= val('fabrics') %>"></div>
+      <div class="field"><label for="s-pieces">Tipos de peças atendidas</label><input id="s-pieces" name="piece_types" maxlength="200" value="<%= val('piece_types') %>"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="s-lote">Quantidade mínima por lote</label><input id="s-lote" name="min_batch" type="number" min="1" value="<%= val('min_batch') %>"></div>
+      <div class="field"><label for="s-prazo">Prazo estimado (dias)</label><input id="s-prazo" name="lead_time_days" type="number" min="1" value="<%= val('lead_time_days') %>"></div>
+      <div class="field"><label for="s-capn">Capacidade relacionada</label><input id="s-capn" name="capacity_note" maxlength="200" value="<%= val('capacity_note') %>" placeholder="Ex.: até 3.000 peças/mês"></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>Faixa de preço (opcional)</legend>
+    <p class="hint" style="margin-top:0">Apenas referência. Não há venda nem pagamento na plataforma.</p>
+    <div class="field-row">
+      <div class="field"><label for="s-pmin">Preço mínimo (R$)</label><input id="s-pmin" name="price_min" inputmode="decimal" value="<%= priceVal(v && v.price_min !== undefined ? 'price_min' : 'price_min_cents') %>"></div>
+      <div class="field"><label for="s-pmax">Preço máximo (R$)</label><input id="s-pmax" name="price_max" inputmode="decimal" value="<%= priceVal(v && v.price_max !== undefined ? 'price_max' : 'price_max_cents') %>"></div>
+      <div class="field"><label for="s-punit">Unidade</label><input id="s-punit" name="price_unit" maxlength="40" value="<%= val('price_unit') %>" placeholder="por peça"></div>
+    </div>
+    <div class="field"><label for="s-cond">Condições comerciais e observações</label><textarea id="s-cond" name="conditions" maxlength="1000"><%= val('conditions') %></textarea></div>
+  </fieldset>
+  <fieldset><legend>Fotos</legend>
+    <% if (photos.length) { %><div class="thumbs" style="margin-bottom:1rem"><% photos.forEach((p) => { %><div class="thumb-card"><img src="<%= img(p.thumb || p.path) %>" alt="" loading="lazy"><div class="cap-row"><button class="btn btn-sm btn-danger" type="submit" formaction="/painel/servicos/<%= s.id %>/foto/<%= p.id %>/excluir" formmethod="post" formnovalidate>Excluir</button></div></div><% }) %></div><% } %>
+    <div class="field"><label for="s-fotos">Adicionar fotos (até 6 por vez)</label><input id="s-fotos" type="file" name="fotos" accept="image/jpeg,image/png,image/webp" multiple></div>
+  </fieldset>
+  <div class="field"><label for="s-active">Situação</label><select id="s-active" name="active"><option value="1" <%= String(val('active', 1)) !== '0' ? 'selected' : '' %>>Ativo (visível)</option><option value="0" <%= String(val('active', 1)) === '0' ? 'selected' : '' %>>Oculto</option></select></div>
+  <div class="row"><button class="btn btn-primary btn-lg" type="submit"><%= s ? 'Salvar anúncio' : 'Publicar anúncio' %></button><a class="btn" href="/painel/servicos">Cancelar</a></div>
+</form>
+<%- include('../partials/panel-end') %>

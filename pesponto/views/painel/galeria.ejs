@@ -1,0 +1,26 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Fotos e vídeos da estrutura' }) %>
+<div class="grid grid-2">
+  <div class="card"><h2>Adicionar fotos</h2>
+    <form method="post" action="/painel/galeria/imagens" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <div class="field"><label for="g-f">Fotos (JPG, PNG ou WebP, até 8 por vez)</label><input id="g-f" type="file" name="fotos" accept="image/jpeg,image/png,image/webp" multiple required></div>
+      <div class="field"><label for="g-c">Legenda (opcional)</label><input id="g-c" name="caption" maxlength="140"></div>
+      <button class="btn btn-primary" type="submit">Enviar fotos</button>
+      <p class="hint">Os dados de localização (GPS) das fotos são removidos automaticamente.</p></form></div>
+  <div class="card"><h2>Adicionar vídeo</h2>
+    <form method="post" action="/painel/galeria/video" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <div class="field"><label for="v-u">Link do YouTube ou Vimeo</label><input id="v-u" name="url" placeholder="https://www.youtube.com/watch?v=…"></div>
+      <div class="field"><label for="v-f">…ou envie um arquivo (MP4 ou WebM, até 40 MB)</label><input id="v-f" type="file" name="video" accept="video/mp4,video/webm"></div>
+      <div class="field"><label for="v-c">Legenda (opcional)</label><input id="v-c" name="caption" maxlength="140"></div>
+      <button class="btn btn-primary" type="submit">Adicionar vídeo</button></form></div>
+</div>
+<div class="card"><h2>Sua galeria</h2>
+  <% if (media.length) { %><div class="thumbs"><% media.forEach((m) => { %>
+    <div class="thumb-card <%= m.hidden ? 'is-hidden' : '' %>">
+      <% if (m.kind === 'imagem') { %><img src="<%= img(m.thumb || m.path) %>" alt="<%= m.caption || 'Foto' %>" loading="lazy"><% } else { %><div style="aspect-ratio:4/3;display:grid;place-items:center;background:var(--denim-100)"><span class="pill"><%= m.kind === 'video_embed' ? 'Vídeo (link)' : 'Vídeo (arquivo)' %></span></div><% } %>
+      <div class="cap-row">
+        <form method="post" action="/painel/galeria/<%= m.id %>/legenda" class="row" style="flex-wrap:nowrap;gap:.3rem"><input type="hidden" name="_csrf" value="<%= csrf() %>"><input name="caption" maxlength="140" value="<%= m.caption || '' %>" aria-label="Legenda" placeholder="Legenda" style="min-height:34px;padding:.3em .5em"><button class="btn btn-sm" type="submit">Salvar</button></form>
+        <% if (m.hidden) { %><span class="small" style="color:var(--danger)">Ocultada pela moderação</span><% } %>
+        <form method="post" action="/painel/galeria/<%= m.id %>/excluir" data-confirm="Excluir este item?"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-sm btn-danger btn-block" type="submit">Excluir</button></form>
+      </div></div><% }) %></div>
+  <% } else { %><p class="muted">Nenhuma mídia ainda. Mostre a fachada, as linhas de costura, o corte e o acabamento: quem compara fornecedores valoriza ver a estrutura real.</p><% } %></div>
+<%- include('../partials/panel-end') %>

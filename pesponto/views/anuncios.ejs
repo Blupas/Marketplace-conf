@@ -1,0 +1,20 @@
+<%- include('partials/head') %>
+<div class="page-head"><div class="wrap">
+  <h1><%= label %></h1>
+  <p><%= kind === 'produto' ? 'Tecidos, aviamentos, máquinas e outros itens anunciados por empresas do setor. A compra é combinada direto com o anunciante.' : 'Facção, corte, modelagem, lavanderia, bordado, estamparia e outros serviços de produção. O contato é direto com a empresa.' %></p>
+</div></div>
+<div class="wrap" style="padding:1.5rem 0 3rem">
+  <form class="near-box" action="<%= kind === 'produto' ? '/produtos' : '/servicos' %>" method="get" role="search">
+    <div class="field"><label for="s-q">Buscar <%= label.toLowerCase() %></label><input id="s-q" type="search" name="q" value="<%= p.q %>" placeholder="Ex.: <%= kind === 'produto' ? 'tecido jeans, zíper, máquina' : 'bordado, lavanderia, facção' %>"></div>
+    <div class="field"><label for="s-cat">Categoria</label><select id="s-cat" name="categoria"><option value="">Todas</option><% categories.forEach((k) => { %><option value="<%= k.slug %>" <%= p.categoria === k.slug ? 'selected' : '' %>><%= k.name %></option><% }) %></select></div>
+    <div class="field" style="min-width:110px;flex:.4"><label for="s-uf">Estado</label><select id="s-uf" name="estado"><option value="">Todos</option><% cat.UFS.forEach((u) => { %><option <%= p.estado === u ? 'selected' : '' %>><%= u %></option><% }) %></select></div>
+    <div class="field" style="flex:.7"><label for="s-lote">Lote mínimo até</label><input id="s-lote" type="number" min="1" name="lote_max" value="<%= p.lote_max || '' %>" placeholder="peças"></div>
+    <button class="btn btn-primary" type="submit">Buscar</button>
+  </form>
+  <p class="muted" aria-live="polite"><%= result.total %> <%= result.total === 1 ? 'anúncio' : 'anúncios' %></p>
+  <% if (result.rows.length) { %>
+    <div class="grid grid-cards"><% result.rows.forEach((s) => { %><%- include('partials/card-service', { s }) %><% }) %></div>
+    <%- include('partials/pagination', { page: result.page, pages: result.pages, baseQs }) %>
+  <% } else { %><div class="empty"><h3>Nenhum anúncio encontrado</h3><p class="muted">Tente outro termo ou remova filtros.</p><a class="btn btn-primary" href="<%= kind === 'produto' ? '/produtos' : '/servicos' %>">Ver todos</a></div><% } %>
+</div>
+<%- include('partials/footer') %>

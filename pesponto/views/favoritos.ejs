@@ -1,0 +1,7 @@
+<%- include('partials/head') %>
+<div class="page-head"><div class="wrap"><h1>Meus favoritos</h1><p>Empresas que você salvou para consultar depois.</p></div></div>
+<div class="wrap" style="padding:1.5rem 0 3rem">
+  <% if (rows.length) { %><div class="grid grid-cards"><% rows.forEach((c) => { %><%- include('partials/card-company', { c }) %><% }) %></div>
+  <% } else { %><div class="empty"><h3>Você ainda não salvou nenhuma empresa</h3><p class="muted">Toque no coração de um card para guardá-la aqui.</p><a class="btn btn-primary" href="/confeccoes">Encontrar confecções</a></div><% } %>
+</div>
+<%- include('partials/footer') %>

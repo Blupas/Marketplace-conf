@@ -1,0 +1,26 @@
+<%- include('../partials/head') %>
+<div class="auth-wrap"><div class="auth-card">
+  <h1>Criar conta</h1>
+  <p class="muted">Você não precisa de conta para pesquisar. Crie uma para salvar favoritos ou anunciar sua empresa.</p>
+  <% if (errors.length) { %><div class="alert alert-error" role="alert"><ul style="margin:0;padding-left:1.1rem"><% errors.forEach((e) => { %><li><%= e %></li><% }) %></ul></div><% } %>
+  <form method="post" action="/cadastro" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrf() %>"><input type="hidden" name="_ts" value="<%= spamToken() %>"><input type="hidden" name="next" value="<%= next %>">
+    <div class="hp" aria-hidden="true"><label>Não preencha <input type="text" name="website_url_confirm" tabindex="-1" autocomplete="off"></label></div>
+    <fieldset style="border:0;padding:0;margin:0 0 1rem"><legend class="sr-only">Tipo de conta</legend>
+      <div class="profile-pick">
+        <label><input type="radio" name="tipo" value="buscador" <%= tipo === 'buscador' ? 'checked' : '' %>><strong>Procuro fornecedores</strong><span>Marcas, lojistas, estilistas e empreendedores.</span></label>
+        <label><input type="radio" name="tipo" value="anunciante" <%= tipo === 'anunciante' ? 'checked' : '' %>><strong>Quero anunciar</strong><span>Confecções, facções, lavanderias e fornecedores.</span></label>
+      </div></fieldset>
+    <div class="field"><label class="req" for="r-n">Nome</label><input id="r-n" name="name" required maxlength="100" value="<%= v.name || '' %>" autocomplete="name"></div>
+    <div class="field"><label class="req" for="r-e">E-mail</label><input id="r-e" type="email" name="email" required maxlength="200" value="<%= v.email || '' %>" autocomplete="email"></div>
+    <div class="field"><label for="r-t">Telefone / WhatsApp (opcional)</label><input id="r-t" type="tel" name="phone" maxlength="30" autocomplete="tel"></div>
+    <div class="field-row">
+      <div class="field"><label class="req" for="r-p">Senha</label><input id="r-p" type="password" name="password" required minlength="8" autocomplete="new-password"><p class="hint">Mínimo de 8 caracteres, com letras e números.</p></div>
+      <div class="field"><label class="req" for="r-p2">Repita a senha</label><input id="r-p2" type="password" name="password2" required minlength="8" autocomplete="new-password"></div>
+    </div>
+    <label class="check"><input type="checkbox" name="consent" required> <span>Li e aceito os <a href="/termos" target="_blank">Termos de uso</a> e a <a href="/privacidade" target="_blank">Política de privacidade</a>.</span></label>
+    <button class="btn btn-primary btn-block btn-lg" type="submit">Criar conta</button>
+  </form>
+  <p class="small" style="margin:1rem 0 0">Já tem conta? <a href="/entrar">Entrar</a></p>
+</div></div>
+<%- include('../partials/footer') %>

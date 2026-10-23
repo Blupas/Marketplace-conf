@@ -1,0 +1,23 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Contatos recebidos' }) %>
+<div class="kpis">
+  <div class="kpi"><span>Cliques no WhatsApp</span><strong><%= ev.click_whatsapp || 0 %></strong><small>desde o início</small></div>
+  <div class="kpi"><span>Cliques no telefone</span><strong><%= ev.click_telefone || 0 %></strong></div>
+  <div class="kpi"><span>Cliques no e-mail</span><strong><%= ev.click_email || 0 %></strong></div>
+  <div class="kpi"><span>Contatos copiados</span><strong><%= ev.copiar_contato || 0 %></strong></div>
+  <div class="kpi"><span>Rotas abertas</span><strong><%= ev.rota || 0 %></strong></div>
+</div>
+<p class="hint" style="margin:-.5rem 0 1rem">Conversas no WhatsApp e ligações acontecem fora da plataforma: aqui contamos só os cliques, não as conversas.</p>
+<div class="card"><h2>Pedidos de orçamento</h2>
+  <% if (quotes.length) { %><div class="stack"><% quotes.forEach((q) => { %>
+    <article class="card" style="margin:0;background:<%= q.status === 'novo' ? 'var(--thread-50)' : '#fff' %>">
+      <div class="row between"><div><strong><%= q.name %></strong> <span class="pill <%= q.status === 'novo' ? 'pill-warn' : q.status === 'respondido' ? 'pill-ok' : 'pill-off' %>"><%= q.status %></span><br>
+        <span class="small muted"><%= U.fmtDate(q.created_at, true) %><%= q.service_name ? ' · ' + q.service_name : '' %><%= q.quantity ? ' · ' + U.fmtInt(q.quantity) + ' peças' : '' %></span></div>
+        <form method="post" action="/painel/contatos/<%= q.id %>/status" class="row"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+          <label class="sr-only" for="st-<%= q.id %>">Situação</label><select id="st-<%= q.id %>" name="status" style="width:auto;min-height:36px"><% ['novo', 'visto', 'respondido', 'arquivado'].forEach((s) => { %><option <%= q.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select><button class="btn btn-sm" type="submit">Atualizar</button></form></div>
+      <p style="white-space:pre-line;margin:.8rem 0"><%= q.message %></p>
+      <div class="row small">
+        <% if (q.phone) { %><a class="btn btn-wa btn-sm" href="https://wa.me/<%= U.digits(q.phone) %>" target="_blank" rel="noopener"><%- icon('whatsapp') %> Chamar <%= U.formatPhone(q.phone) %></a><% } %>
+        <% if (q.email) { %><a class="btn btn-sm" href="mailto:<%= q.email %>"><%- icon('mail') %> <%= q.email %></a><% } %></div>
+    </article><% }) %></div>
+  <% } else { %><p class="muted">Nenhum pedido de orçamento recebido ainda.</p><% } %></div>
+<%- include('../partials/panel-end') %>

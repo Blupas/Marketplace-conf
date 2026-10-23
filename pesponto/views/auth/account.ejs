@@ -1,0 +1,28 @@
+<%- include('../partials/head') %>
+<div class="page-head"><div class="wrap"><h1>Minha conta</h1><p>Seus dados pessoais e seus direitos de titular (LGPD).</p></div></div>
+<div class="wrap" style="max-width:760px;padding:1.5rem var(--gutter) 3rem">
+  <% if (msg) { %><div class="alert alert-ok" role="status"><%= msg %></div><% } %>
+  <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+  <section class="card"><h2>Dados pessoais</h2>
+    <form method="post" action="/conta"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <div class="field-row"><div class="field"><label for="a-n">Nome</label><input id="a-n" name="name" value="<%= me.name %>" required maxlength="100"></div>
+        <div class="field"><label for="a-e">E-mail</label><input id="a-e" type="email" name="email" value="<%= me.email %>" required></div>
+        <div class="field"><label for="a-t">Telefone</label><input id="a-t" type="tel" name="phone" value="<%= me.phone ? U.formatPhone(me.phone) : '' %>"></div></div>
+      <p class="hint">Perfil: <strong><%= me.role === 'anunciante' ? 'Anunciante' : me.role === 'admin' ? 'Administrador' : 'Quem procura fornecedores' %></strong> · Conta criada em <%= U.fmtDate(me.created_at) %><% if (me.lgpd_consent_at) { %> · Termos aceitos em <%= U.fmtDate(me.lgpd_consent_at) %><% } %></p>
+      <button class="btn btn-primary" type="submit">Salvar dados</button></form></section>
+  <section class="card"><h2>Alterar senha</h2>
+    <form method="post" action="/conta/senha"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+      <div class="field-row"><div class="field"><label for="p-c">Senha atual</label><input id="p-c" type="password" name="current" required autocomplete="current-password"></div>
+        <div class="field"><label for="p-n">Nova senha</label><input id="p-n" type="password" name="password" required minlength="8" autocomplete="new-password"></div>
+        <div class="field"><label for="p-n2">Repita a nova senha</label><input id="p-n2" type="password" name="password2" required autocomplete="new-password"></div></div>
+      <button class="btn" type="submit">Alterar senha</button></form></section>
+  <section class="card"><h2>Seus dados (LGPD)</h2>
+    <p class="muted">Você pode baixar uma cópia de tudo o que guardamos sobre você ou excluir sua conta. A exclusão remove seus dados pessoais, favoritos e, se for anunciante, a página da sua empresa e as mídias enviadas.</p>
+    <p><a class="btn" href="/conta/exportar" download>Baixar meus dados (JSON)</a></p>
+    <details><summary class="link-btn" style="cursor:pointer;color:var(--danger)">Excluir minha conta</summary>
+      <form method="post" action="/conta/excluir" style="margin-top:1rem" data-confirm="Excluir a conta definitivamente? Isso não pode ser desfeito."><input type="hidden" name="_csrf" value="<%= csrf() %>">
+        <div class="alert alert-warn">Esta ação é definitiva.</div>
+        <div class="field"><label for="x-p">Confirme sua senha</label><input id="x-p" type="password" name="password" required autocomplete="current-password"></div>
+        <button class="btn btn-danger" type="submit">Excluir conta definitivamente</button></form></details></section>
+</div>
+<%- include('../partials/footer') %>

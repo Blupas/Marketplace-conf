@@ -1,0 +1,40 @@
+<%# params: c (linha de empresa), favIds (Set) %>
+<% const _fav = locals.favIds && favIds.has(c.id);
+   const _cap = c.max_monthly ? U.fmtInt(c.max_monthly) + ' pç' : (c.avg_monthly ? 'média ' + U.fmtInt(c.avg_monthly) : null);
+   const _stale = c.availability_updated_at && (Date.now() - new Date(c.availability_updated_at.replace(' ', 'T') + 'Z')) > 60 * 864e5; %>
+<article class="co-card" data-company="<%= c.id %>">
+  <div class="cover">
+    <% if (c.cover) { %><img src="<%= img(c.cover) %>" alt="" loading="lazy" width="640" height="280"><% } %>
+    <div class="cover-flags">
+      <% if (c.is_demo) { %><span class="pill pill-demo" title="Empresa fictícia criada para demonstração">Demonstração</span><% } %>
+      <% if (c.featured) { %><span class="pill" style="background:var(--thread);color:var(--denim-950)">Destaque</span><% } %>
+    </div>
+    <div class="tools">
+      <button type="button" class="tool" data-fav="<%= c.id %>" aria-pressed="<%= _fav ? 'true' : 'false' %>" aria-label="Favoritar <%= c.name %>" title="Favoritar"><%- icon('heart') %></button>
+    </div>
+  </div>
+  <div class="co-body">
+    <div class="co-title">
+      <% if (c.logo) { %><img class="co-logo" src="<%= img(c.logo) %>" alt="" loading="lazy" width="54" height="54"><% } else { %><span class="co-logo" aria-hidden="true" style="display:grid;place-items:center;background:var(--denim-800);color:#fff;font:700 1.2rem var(--font-display)"><%= c.name.slice(0,1) %></span><% } %>
+      <div>
+        <h3><a href="/empresa/<%= c.slug %>"><%= c.name %></a></h3>
+        <div class="co-loc"><%- icon('pin', 'i-sm') %><%= c.city ? c.city + (c.state ? ' – ' + c.state : '') : 'Local não informado' %><% if (c.distance_km != null) { %> <span class="dist">· <%= c.distance_km < 10 ? c.distance_km.toFixed(1).replace('.', ',') : Math.round(c.distance_km) %> km</span><% } %></div>
+      </div>
+    </div>
+    <% if (c.categories && c.categories.length) { %><div class="chips"><% c.categories.slice(0, 3).forEach((k) => { %><span class="tag"><%= k.name %></span><% }) %><% if (c.categories.length > 3) { %><span class="tag">+<%= c.categories.length - 3 %></span><% } %></div><% } %>
+    <% if (c.tagline) { %><p class="co-tagline"><%= c.tagline %></p><% } %>
+    <dl class="facts">
+      <div><dt>Máquinas</dt><% if (c.machine_total > 0) { %><dd><%= U.fmtInt(c.machine_total) %></dd><% } else { %><dd class="na">não informado</dd><% } %></div>
+      <div><dt>Capacidade/mês</dt><% if (_cap) { %><dd><%= _cap %></dd><% } else { %><dd class="na">não informado</dd><% } %></div>
+      <div><dt>Lote mínimo</dt><% if (c.min_batch) { %><dd><%= U.fmtInt(c.min_batch) %> pç</dd><% } else { %><dd class="na">não informado</dd><% } %></div>
+    </dl>
+    <div class="co-foot">
+      <% if (c.availability) { %><span class="pill pill-dot <%= c.availability === 'disponivel' ? 'pill-ok' : c.availability === 'limitada' ? 'pill-warn' : 'pill-off' %>" <% if (_stale) { %>title="Informação atualizada há mais de 60 dias"<% } %>><%= cat.AVAIL_LABEL[c.availability] %><%= _stale ? ' (desatualizado)' : '' %></span><% } else { %><span class="small muted">Disponibilidade não informada</span><% } %>
+      <label class="compare-check"><input type="checkbox" data-compare="<%= c.id %>" data-name="<%= c.name %>" data-slug="<%= c.slug %>"> Comparar</label>
+    </div>
+    <div class="co-actions">
+      <a class="btn btn-primary btn-sm" href="/empresa/<%= c.slug %>">Ver perfil</a>
+      <% if (c.has_wa) { %><a class="btn btn-wa btn-sm" href="/ir/whatsapp/<%= c.id %>" target="_blank" rel="noopener nofollow"><%- icon('whatsapp') %> WhatsApp</a><% } %>
+    </div>
+  </div>
+</article>

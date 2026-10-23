@@ -1,0 +1,72 @@
+<%- include('partials/head') %>
+<div class="page-head"><div class="wrap">
+  <h1>Encontrar confecções</h1>
+  <p>Pesquise por nome, produto, serviço, cidade ou tipo de máquina e refine pela estrutura que você precisa.</p>
+</div></div>
+<div class="wrap search-layout">
+  <form class="filters" id="filters" action="/confeccoes" method="get" aria-label="Filtros de busca">
+    <h2>Filtros</h2>
+    <div class="field"><label for="f-q">Buscar</label><input id="f-q" name="q" type="search" value="<%= p.q %>" placeholder="Empresa, serviço, máquina…" maxlength="100"></div>
+    <details <%= p.categoria.length ? 'open' : '' %>><summary>Categoria <%- icon('chevron') %></summary>
+      <% categories.forEach((k) => { %><label class="check"><input type="checkbox" name="categoria" value="<%= k.slug %>" <%= p.categoria.includes(k.slug) ? 'checked' : '' %>> <span><%= k.name %> <span class="muted">(<%= k.n %>)</span></span></label><% }) %>
+    </details>
+    <details <%= (p.estado || p.cidade || p.perto || p.nearLabel) ? 'open' : '' %>><summary>Localização <%- icon('chevron') %></summary>
+      <div class="field"><label for="f-uf">Estado</label><select id="f-uf" name="estado"><option value="">Todos</option><% cat.UFS.forEach((u) => { %><option <%= p.estado === u ? 'selected' : '' %>><%= u %></option><% }) %></select></div>
+      <div class="field"><label for="f-city">Cidade</label><input id="f-city" name="cidade" value="<%= p.cidade %>" maxlength="80"></div>
+      <div class="field"><label for="f-near">Perto de (cidade ou CEP)</label><input id="f-near" name="perto" value="<%= p.perto || '' %>" placeholder="Ex.: Brusque ou 88350-000">
+        <input type="hidden" name="lat" value="<%= Number.isFinite(p.lat) && !p.perto ? p.lat : '' %>"><input type="hidden" name="lng" value="<%= Number.isFinite(p.lng) && !p.perto ? p.lng : '' %>">
+        <button type="button" class="link-btn small" data-geo-fill>Usar minha localização</button></div>
+      <div class="field"><label for="f-raio">Distância máxima</label><select id="f-raio" name="raio"><option value="">Qualquer</option><% [25, 50, 100, 200, 500].forEach((r) => { %><option value="<%= r %>" <%= p.raio === r ? 'selected' : '' %>>até <%= r %> km</option><% }) %></select><p class="hint">Use junto com “Perto de”.</p></div>
+    </details>
+    <details <%= (p.maquina || p.maquinas_min) ? 'open' : '' %>><summary>Máquinas <%- icon('chevron') %></summary>
+      <div class="field"><label for="f-mq">Tipo de máquina</label><select id="f-mq" name="maquina"><option value="">Qualquer</option><% machineTypes.forEach((m) => { %><option value="<%= m[0] %>" <%= p.maquina === m[0] ? 'selected' : '' %>><%= m[1] %></option><% }) %></select></div>
+      <div class="field"><label for="f-mqn">Quantidade mínima</label><input id="f-mqn" name="maquinas_min" type="number" min="1" inputmode="numeric" value="<%= p.maquinas_min || '' %>" placeholder="Ex.: 10"></div>
+    </details>
+    <details <%= (p.capacidade_min || p.lote_max || p.porte.length || p.disponibilidade) ? 'open' : '' %>><summary>Produção <%- icon('chevron') %></summary>
+      <div class="field"><label for="f-cap">Capacidade mensal mínima (peças)</label><input id="f-cap" name="capacidade_min" type="number" min="1" inputmode="numeric" value="<%= p.capacidade_min || '' %>" placeholder="Ex.: 5000"></div>
+      <div class="field"><label for="f-lote">Lote mínimo de até (peças)</label><input id="f-lote" name="lote_max" type="number" min="1" inputmode="numeric" value="<%= p.lote_max || '' %>" placeholder="Ex.: 100"></div>
+      <div class="label">Porte da produção</div>
+      <% Object.entries(cat.SIZE_LABEL).forEach(([k, v]) => { %><label class="check"><input type="checkbox" name="porte" value="<%= k %>" <%= p.porte.includes(k) ? 'checked' : '' %>> <%= v %></label><% }) %>
+      <div class="field" style="margin-top:.7rem"><label for="f-disp">Disponibilidade</label><select id="f-disp" name="disponibilidade"><option value="">Qualquer</option><option value="disponivel" <%= p.disponibilidade === 'disponivel' ? 'selected' : '' %>>Aceitando novos pedidos</option><option value="aberta" <%= p.disponibilidade === 'aberta' ? 'selected' : '' %>>Aceitando ou com agenda limitada</option></select><p class="hint">Considera só empresas que informaram.</p></div>
+    </details>
+    <details <%= (p.peca || p.tecido) ? 'open' : '' %>><summary>Peças e tecidos <%- icon('chevron') %></summary>
+      <div class="field"><label for="f-peca">Tipo de peça</label><input id="f-peca" name="peca" value="<%= p.peca %>" list="dl-pecas" placeholder="Ex.: calça jeans"><datalist id="dl-pecas"><% pieces.forEach((x) => { %><option value="<%= x %>"><% }) %></datalist></div>
+      <div class="field"><label for="f-tec">Tipo de tecido</label><input id="f-tec" name="tecido" value="<%= p.tecido %>" list="dl-tec" placeholder="Ex.: malha"><datalist id="dl-tec"><% fabrics.forEach((x) => { %><option value="<%= x %>"><% }) %></datalist></div>
+    </details>
+    <details <%= p.etapa.length ? 'open' : '' %>><summary>Etapas feitas internamente <%- icon('chevron') %></summary>
+      <% cat.STEP_DEFAULTS.forEach((s) => { %><label class="check"><input type="checkbox" name="etapa" value="<%= s[0] %>" <%= p.etapa.includes(s[0]) ? 'checked' : '' %>> <%= s[1] %></label><% }) %>
+    </details>
+    <input type="hidden" name="ordem" value="<%= p.ordem %>">
+    <div class="filters-actions"><button class="btn btn-primary grow" type="submit">Aplicar filtros</button><a class="btn" href="/confeccoes">Limpar</a></div>
+  </form>
+
+  <section aria-labelledby="h-res">
+    <div class="results-head">
+      <div><h2 id="h-res" aria-live="polite"><%= result.total %> <%= result.total === 1 ? 'empresa encontrada' : 'empresas encontradas' %></h2>
+        <button type="button" class="btn btn-sm filters-toggle" data-filters-toggle aria-expanded="false" aria-controls="filters"><%- icon('filter') %> Filtros</button></div>
+      <div class="row">
+        <a class="btn btn-sm" href="/mapa?<%= baseQs %>"><%- icon('map') %> Ver no mapa</a>
+        <form action="/confeccoes" method="get" data-sort-form>
+          <% new URLSearchParams(baseQs).forEach((v, k) => { if (k !== 'ordem') { %><input type="hidden" name="<%= k %>" value="<%= v %>"><% } }) %>
+          <label class="sr-only" for="ordem">Ordenar por</label>
+          <select id="ordem" name="ordem" data-autosubmit>
+            <option value="relevancia" <%= p.ordem === 'relevancia' ? 'selected' : '' %>>Mais relevantes</option>
+            <option value="proximidade" <%= p.ordem === 'proximidade' ? 'selected' : '' %> <%= result.hasPoint ? '' : 'disabled' %>>Mais próximas<%= result.hasPoint ? '' : ' (informe um local)' %></option>
+            <option value="recentes" <%= p.ordem === 'recentes' ? 'selected' : '' %>>Cadastradas recentemente</option>
+            <option value="capacidade" <%= p.ordem === 'capacidade' ? 'selected' : '' %>>Maior capacidade informada</option>
+            <option value="nome" <%= p.ordem === 'nome' ? 'selected' : '' %>>Nome (A–Z)</option>
+          </select><noscript><button class="btn btn-sm">Ordenar</button></noscript>
+        </form>
+      </div>
+    </div>
+    <% if (p.nearFailed) { %><div class="alert alert-warn">Não encontramos o local “<%= p.perto %>”. Tente informar a cidade com o estado (ex.: “Blumenau SC”) ou um CEP.</div><% } %>
+    <% if (filters.length) { %><div class="active-filters" aria-label="Filtros ativos"><% filters.forEach((f) => { %><a class="chip chip-x" href="/confeccoes<%= f.qs ? '?' + f.qs : '' %>" aria-label="Remover filtro <%= f.label %>"><%= f.label %> <%- icon('x') %></a><% }) %></div><% } %>
+    <% if (result.rows.length) { %>
+      <div class="grid grid-cards"><% result.rows.forEach((c) => { %><%- include('partials/card-company', { c }) %><% }) %></div>
+      <%- include('partials/pagination', { page: result.page, pages: result.pages, baseQs }) %>
+    <% } else { %>
+      <div class="empty"><h3>Nenhuma empresa com esses filtros</h3><p class="muted">Tente remover algum filtro, buscar por um termo mais geral ou aumentar a distância.</p><a class="btn btn-primary" href="/confeccoes">Limpar filtros</a></div>
+    <% } %>
+  </section>
+</div>
+<%- include('partials/footer') %>

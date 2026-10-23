@@ -1,0 +1,105 @@
+<%- include('partials/head') %>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1><%= site.hero_title %></h1>
+      <p class="lead"><%= site.hero_subtitle %></p>
+      <form class="hero-search" action="/confeccoes" method="get" role="search">
+        <label for="hero-q">O que você precisa produzir?</label>
+        <input id="hero-q" name="q" type="search" placeholder="Jeans, facção, overloque, bordado, cidade ou empresa…" autocomplete="off" maxlength="100">
+        <button class="btn btn-gold btn-lg" type="submit"><%- icon('search') %> Buscar</button>
+      </form>
+      <div class="quick">
+        <h2>Comece por uma categoria</h2>
+        <div class="chips"><% quick.forEach((k) => { %><a class="chip" href="/confeccoes?categoria=<%= k.slug %>"><%= k.name %></a><% }) %></div>
+      </div>
+    </div>
+    <% if (spec) { const s = spec; const c = s.c; %>
+    <aside class="spec" aria-label="Exemplo de ficha de uma empresa">
+      <div class="spec-top">
+        <div>
+          <p class="kicker">Ficha da empresa<%= c.is_demo ? ' · demonstração' : '' %></p>
+          <h2><a href="/empresa/<%= c.slug %>" style="text-decoration:none;color:inherit"><%= c.name %></a></h2>
+          <span class="small muted"><%= c.city %> – <%= c.state %></span>
+        </div>
+        <% if (c.logo) { %><img src="<%= img(c.logo) %>" alt="" width="52" height="52" style="border-radius:12px"><% } %>
+      </div>
+      <dl>
+        <div><dt>Máquinas</dt><dd><% if (s.top.length) { %><%= s.top.map((m) => m.quantity + ' ' + m.name.toLowerCase()).slice(0, 2).join(', ') %><% } else { %><span class="na">não informado</span><% } %></dd></div>
+        <div><dt>Capacidade máxima/mês</dt><dd><% if (s.cap && s.cap.max_monthly) { %><%= U.fmtInt(s.cap.max_monthly) %> peças<% } else { %><span class="na">não informado</span><% } %></dd></div>
+        <div><dt>Lote mínimo</dt><dd><% if (c.min_batch) { %><%= U.fmtInt(c.min_batch) %> peças<% } else { %><span class="na">não informado</span><% } %></dd></div>
+        <div><dt>Etapas feitas internamente</dt><dd><% if (s.stepsTotal) { %><%= s.steps %> de <%= s.stepsTotal %><% } else { %><span class="na">não informado</span><% } %></dd></div>
+        <div><dt>Novos pedidos</dt><dd><% if (c.availability) { %><%= cat.AVAIL_LABEL[c.availability] %><% } else { %><span class="na">não informado</span><% } %></dd></div>
+      </dl>
+      <a class="btn btn-primary btn-sm btn-block" href="/empresa/<%= c.slug %>">Ver perfil completo</a>
+    </aside>
+    <% } %>
+  </div>
+</section>
+<% if (locals.banners && banners.length) { %>
+<section class="wrap" aria-label="Destaques" style="margin-top:1.5rem"><div class="grid grid-<%= Math.min(banners.length, 2) %>">
+  <% banners.forEach((b) => { %><div class="card" style="background:var(--denim-50,#f3f6fb)"><h2 style="font-size:1.15rem;margin:0 0 .35rem"><%= b.title %></h2><% if (b.text) { %><p class="muted" style="margin:0 0 .8rem"><%= b.text %></p><% } %><% if (b.link && b.cta) { %><a class="btn btn-sm" href="<%= b.link %>"><%= b.cta %></a><% } %></div><% }) %>
+</div></section>
+<% } %>
+
+<section class="section" aria-labelledby="h-cats">
+  <div class="wrap">
+    <div class="section-head"><div><h2 id="h-cats">Categorias populares</h2><p>Da facção de costura à lavanderia industrial: escolha o elo da cadeia que você procura.</p></div><a class="btn btn-sm" href="/confeccoes">Ver todas as empresas</a></div>
+    <div class="cat-grid">
+      <% popularCats.forEach((k) => { %>
+        <a class="cat-tile" href="/confeccoes?categoria=<%= k.slug %>"><span class="ic"><%- icon(k.icon || 'estrela') %></span><span><strong><%= k.name %></strong><span class="n"><%= k.n %> <%= k.n === 1 ? 'empresa' : 'empresas' %></span></span></a>
+      <% }) %>
+    </div>
+    <details style="margin-top:1rem"><summary class="link-btn" style="cursor:pointer">Ver as <%= categories.length %> categorias</summary>
+      <div class="chips" style="margin-top:.8rem"><% categories.forEach((k) => { %><a class="chip" href="/confeccoes?categoria=<%= k.slug %>"><%= k.name %> <span class="muted">(<%= k.n %>)</span></a><% }) %></div></details>
+  </div>
+</section>
+
+<% if (featured.length) { %>
+<section class="section section-alt" aria-labelledby="h-feat">
+  <div class="wrap">
+    <div class="section-head"><div><h2 id="h-feat">Empresas em destaque</h2><p>Empresas com destaque na plataforma.</p></div></div>
+    <div class="grid grid-cards"><% featured.forEach((c) => { %><%- include('partials/card-company', { c }) %><% }) %></div>
+  </div>
+</section>
+<% } %>
+
+<section class="section" id="perto" aria-labelledby="h-near" data-near>
+  <div class="wrap">
+    <div class="section-head"><div><h2 id="h-near">Confecções perto de você</h2><p>Informe sua cidade ou CEP, ou deixe o navegador usar sua localização. Não guardamos sua posição.</p></div></div>
+    <form class="near-box" data-near-form action="/confeccoes" method="get">
+      <input type="hidden" name="ordem" value="proximidade">
+      <div class="field"><label for="near-q">Cidade ou CEP</label><input id="near-q" name="perto" type="text" placeholder="Ex.: Jaraguá do Sul ou 89251-000" autocomplete="postal-code"></div>
+      <button class="btn btn-primary" type="submit">Mostrar as mais próximas</button>
+      <button class="btn" type="button" data-geo><%- icon('locate') %> Usar minha localização</button>
+    </form>
+    <div class="grid grid-cards" data-near-results aria-live="polite"></div>
+    <p class="muted" data-near-hint>Escolha um local para ver as confecções mais próximas, da menor para a maior distância.</p>
+  </div>
+</section>
+
+<% if (services.length) { %>
+<section class="section section-alt" aria-labelledby="h-serv">
+  <div class="wrap">
+    <div class="section-head"><div><h2 id="h-serv">Serviços mais procurados</h2><p>Com base nas visitas aos anúncios nos últimos 30 dias.</p></div><a class="btn btn-sm" href="/servicos">Ver todos os serviços</a></div>
+    <div class="grid grid-cards"><% services.forEach((s) => { %><%- include('partials/card-service', { s }) %><% }) %></div>
+  </div>
+</section>
+<% } %>
+
+<section class="section" aria-labelledby="h-new">
+  <div class="wrap">
+    <div class="section-head"><div><h2 id="h-new">Empresas recém-cadastradas</h2></div><a class="btn btn-sm" href="/confeccoes?ordem=recentes">Ver mais recentes</a></div>
+    <div class="grid grid-cards"><% newest.forEach((c) => { %><%- include('partials/card-company', { c }) %><% }) %></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="cta-band">
+      <div><h2>Tem uma confecção, facção ou lavanderia?</h2><p>Cadastre sua empresa gratuitamente, mostre suas máquinas, seu processo e sua capacidade, e receba contatos direto no WhatsApp. Sem comissão e sem venda dentro da plataforma.</p></div>
+      <a class="btn btn-gold btn-lg" href="/anunciar">Anunciar minha empresa</a>
+    </div>
+  </div>
+</section>
+<%- include('partials/footer') %>

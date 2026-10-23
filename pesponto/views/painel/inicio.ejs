@@ -1,0 +1,64 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Visão geral' }) %>
+<% const st = company.status; const max = Math.max(1, ...series.map((s) => s.n)); %>
+<div class="status-bar is-<%= st %>">
+  <div class="grow"><strong>Situação da página: <%= cat.STATUS_LABEL[st] %></strong>
+    <div class="small">
+      <% if (st === 'rascunho') { %>Só você vê esta página. Complete os itens obrigatórios e envie para análise.<% } %>
+      <% if (st === 'pendente') { %>Em análise pela equipe. Você pode continuar editando.<% } %>
+      <% if (st === 'aprovado') { %>Publicada e visível para todos. <a href="/empresa/<%= company.slug %>">Ver página</a>.<% } %>
+      <% if (st === 'rejeitado') { %>Motivo: <%= company.status_reason || 'não informado' %>. Ajuste e envie novamente.<% } %>
+      <% if (st === 'suspenso') { %>Suspensa<%= company.status_reason ? ': ' + company.status_reason : '' %>. Fale com o suporte.<% } %>
+    </div></div>
+  <% if (['rascunho', 'rejeitado'].includes(st)) { %>
+    <form method="post" action="/painel/enviar"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-gold" type="submit" <%= comp.canSubmit ? '' : 'disabled' %>>Enviar para análise</button></form>
+  <% } %>
+</div>
+
+<div class="card">
+  <div class="row between"><h2 style="margin:0">Completude do perfil</h2><strong><%= comp.percent %>%</strong></div>
+  <div class="progress" style="margin:.6rem 0 1rem" role="progressbar" aria-valuenow="<%= comp.percent %>" aria-valuemin="0" aria-valuemax="100"><span style="width:<%= comp.percent %>%"></span></div>
+  <div class="grid grid-2">
+    <div><h3 style="font-size:1rem">Obrigatório para publicar</h3><ul class="checklist"><% comp.required.forEach((i) => { %><li class="<%= i.ok ? 'done' : '' %>"><span class="mark"><% if (i.ok) { %><%- icon('check') %><% } %></span><% if (i.ok) { %><%= i.label %><% } else { %><a href="<%= i.href %>"><%= i.label %></a><% } %></li><% }) %></ul></div>
+    <div><h3 style="font-size:1rem">Recomendado</h3><ul class="checklist"><% comp.suggested.forEach((i) => { %><li class="<%= i.ok ? 'done' : '' %>"><span class="mark"><% if (i.ok) { %><%- icon('check') %><% } %></span><% if (i.ok) { %><%= i.label %><% } else { %><a href="<%= i.href %>"><%= i.label %></a><% } %></li><% }) %></ul></div>
+  </div>
+</div>
+
+<div class="card" id="disponibilidade">
+  <h2>Disponibilidade para novos pedidos</h2>
+  <p class="muted small">Atualize sempre que mudar. A data da atualização aparece na sua página, e informação com mais de 60 dias é sinalizada como desatualizada.<% if (company.availability_updated_at) { %> Última atualização: <%= U.fmtDate(company.availability_updated_at) %>.<% } %></p>
+  <form method="post" action="/painel/disponibilidade"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field-row">
+      <div class="field"><label for="av">Situação</label><select id="av" name="availability"><option value="">Não informar</option><% Object.entries(cat.AVAIL_LABEL).forEach(([k, v]) => { %><option value="<%= k %>" <%= company.availability === k ? 'selected' : '' %>><%= v %></option><% }) %></select></div>
+      <div class="field"><label for="avq">Peças/mês livres (opcional)</label><input id="avq" name="available_monthly" type="number" min="0" inputmode="numeric" value="<%= cap && cap.available_monthly != null ? cap.available_monthly : '' %>"></div>
+    </div>
+    <div class="field"><label for="avn">Observação (opcional)</label><input id="avn" name="availability_note" maxlength="300" value="<%= company.availability_note || '' %>" placeholder="Ex.: agenda aberta a partir de novembro"></div>
+    <button class="btn btn-primary" type="submit">Atualizar disponibilidade</button>
+  </form>
+</div>
+
+<div class="row between" style="margin-bottom:.75rem"><h2 style="margin:0">Desempenho</h2>
+  <div class="chips"><% [7, 30, 90].forEach((d) => { %><a class="chip <%= dias === d ? 'is-on' : '' %>" href="/painel?dias=<%= d %>" <%- dias === d ? 'aria-current="true"' : '' %>>Últimos <%= d %> dias</a><% }) %></div></div>
+<div class="kpis">
+  <div class="kpi"><span>Visitas à página</span><strong><%= U.fmtInt(tot.view_empresa || 0) %></strong></div>
+  <div class="kpi"><span>Cliques no WhatsApp</span><strong><%= U.fmtInt(tot.click_whatsapp || 0) %></strong></div>
+  <div class="kpi"><span>Visualizações de anúncios</span><strong><%= U.fmtInt(tot.view_anuncio || 0) %></strong></div>
+  <div class="kpi"><span>Pedidos de orçamento</span><strong><%= U.fmtInt(tot.orcamento || 0) %></strong></div>
+  <div class="kpi"><span>Cliques em telefone/e-mail</span><strong><%= U.fmtInt((tot.click_telefone || 0) + (tot.click_email || 0)) %></strong></div>
+  <div class="kpi"><span>Favoritos recebidos</span><strong><%= U.fmtInt(tot.favorito || 0) %></strong></div>
+</div>
+<div class="card">
+  <h2>Visitas por dia</h2>
+  <div class="bars" role="img" aria-label="Gráfico de visitas por dia nos últimos <%= dias %> dias"><% series.forEach((s) => { %><span style="height:<%= Math.max(2, Math.round(s.n / max * 100)) %>%" title="<%= s.day %>: <%= s.n %>"></span><% }) %></div>
+  <div class="bars-x"><span><%= U.fmtDate(series[0].day) %></span><span><%= U.fmtDate(series[series.length - 1].day) %></span></div>
+  <p class="hint">As visitas do próprio dono e de robôs de busca não são contadas.</p>
+</div>
+<div class="grid grid-2">
+  <div class="card"><h2>Anúncios mais vistos</h2>
+    <% if (topServices.length) { %><div class="table-scroll"><table class="table"><thead><tr><th>Anúncio</th><th>Visualizações</th><th>WhatsApp</th></tr></thead><tbody>
+      <% topServices.forEach((s) => { %><tr><td><a href="/painel/servicos/<%= s.id %>/editar"><%= s.name %></a></td><td><%= s.views %></td><td><%= s.wa %></td></tr><% }) %></tbody></table></div>
+    <% } else { %><p class="muted">Você ainda não cadastrou anúncios. <a href="/painel/servicos/novo">Criar o primeiro</a>.</p><% } %></div>
+  <div class="card"><div class="row between"><h2 style="margin:0">Últimos pedidos de orçamento</h2><a class="btn btn-sm" href="/painel/contatos">Ver todos</a></div>
+    <% if (quotes.length) { %><ul style="list-style:none;padding:0;margin:1rem 0 0;display:grid;gap:.7rem"><% quotes.forEach((q) => { %><li><strong><%= q.name %></strong> <span class="pill <%= q.status === 'novo' ? 'pill-warn' : '' %>"><%= q.status %></span><br><span class="small muted"><%= U.timeAgo(q.created_at) %><%= q.service_name ? ' · ' + q.service_name : '' %></span></li><% }) %></ul>
+    <% } else { %><p class="muted" style="margin-top:1rem">Nenhum pedido ainda.</p><% } %></div>
+</div>
+<%- include('../partials/panel-end') %>

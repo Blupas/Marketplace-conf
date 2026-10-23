@@ -1,0 +1,99 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: novo ? 'Cadastrar empresa' : 'Dados da empresa' }) %>
+<% const val = (k, d = '') => (v && v[k] != null ? v[k] : d); const chk = (k) => (v && (v[k] === 1 || v[k] === true || v[k] === 'on')); %>
+<% if (novo) { %><div class="alert alert-info">Comece pelo básico: nome, categorias, cidade e um contato. Você completa o restante depois e só envia para análise quando estiver pronto.</div><% } %>
+<form method="post" action="/painel/empresa" enctype="multipart/form-data" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrf() %>">
+  <fieldset><legend>Identificação</legend>
+    <div class="field-row">
+      <div class="field"><label class="req" for="e-name">Nome da empresa (nome fantasia)</label><input id="e-name" name="name" required maxlength="120" value="<%= val('name') %>"></div>
+      <div class="field"><label for="e-legal">Razão social</label><input id="e-legal" name="legal_name" maxlength="150" value="<%= val('legal_name') %>"></div>
+      <div class="field"><label for="e-cnpj">CNPJ (opcional)</label><input id="e-cnpj" name="cnpj" inputmode="numeric" maxlength="18" value="<%= val('cnpj') %>"><p class="hint">Não é exibido na página pública.</p></div>
+    </div>
+    <div class="field"><label for="e-tag">Frase de apresentação</label><input id="e-tag" name="tagline" maxlength="160" value="<%= val('tagline') %>" placeholder="Em uma linha, o que a empresa faz"></div>
+    <div class="field"><label class="req" for="e-desc">Descrição da empresa</label><textarea id="e-desc" name="description" maxlength="3000"><%= val('description') %></textarea><p class="hint">Mínimo de 40 caracteres para publicar. Descreva só o que é verdade: não declare certificações ou prêmios que a empresa não tenha.</p></div>
+    <div class="field"><label for="e-hist">História da empresa</label><textarea id="e-hist" name="history" maxlength="3000"><%= val('history') %></textarea></div>
+    <div class="field-row">
+      <div class="field"><label for="e-year">Ano de fundação</label><input id="e-year" name="founded_year" type="number" min="1800" max="<%= new Date().getFullYear() %>" value="<%= val('founded_year') %>"></div>
+      <div class="field"><label for="e-spec">Especialidades</label><input id="e-spec" name="specialties" maxlength="300" value="<%= val('specialties') %>" placeholder="Separe por vírgula"></div>
+      <div class="field"><label for="e-fab">Tecidos trabalhados</label><input id="e-fab" name="fabrics" maxlength="300" value="<%= val('fabrics') %>" placeholder="Ex.: jeans, malha, sarja"></div>
+    </div>
+  </fieldset>
+
+  <fieldset><legend>Categorias de atuação</legend>
+    <p class="hint" style="margin-top:0">Escolha até 8. Pelo menos uma é obrigatória.</p>
+    <div class="check-grid"><% allCats.forEach((k) => { %><label class="check"><input type="checkbox" name="categories" value="<%= k.id %>" <%= selCats.includes(k.id) ? 'checked' : '' %>> <%= k.name %></label><% }) %></div>
+  </fieldset>
+
+  <fieldset id="contatos"><legend>Contatos comerciais</legend>
+    <div class="field-row">
+      <div class="field"><label for="e-wa">WhatsApp</label><input id="e-wa" name="whatsapp" type="tel" value="<%= val('whatsapp') %>" placeholder="(47) 99999-0000"><p class="hint">Usado no botão “Conversar pelo WhatsApp”.</p></div>
+      <div class="field"><label for="e-tel">Telefone</label><input id="e-tel" name="phone" type="tel" value="<%= val('phone') %>" placeholder="(47) 3333-0000"></div>
+      <div class="field"><label for="e-mail">E-mail comercial</label><input id="e-mail" name="email" type="email" maxlength="200" value="<%= val('email') %>"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="e-site">Site</label><input id="e-site" name="website" maxlength="200" value="<%= val('website') %>" placeholder="www.suaempresa.com.br"></div>
+      <div class="field"><label for="e-ig">Instagram</label><input id="e-ig" name="instagram" maxlength="200" value="<%= val('instagram') %>" placeholder="@suaempresa"></div>
+      <div class="field"><label for="e-fb">Facebook</label><input id="e-fb" name="facebook" maxlength="200" value="<%= val('facebook') %>"></div>
+      <div class="field"><label for="e-li">LinkedIn</label><input id="e-li" name="linkedin" maxlength="200" value="<%= val('linkedin') %>"></div>
+    </div>
+    <div class="field"><label for="e-hours">Horário de funcionamento</label><input id="e-hours" name="hours" maxlength="200" value="<%= val('hours') %>" placeholder="Seg a sex, 7h às 17h"></div>
+  </fieldset>
+
+  <fieldset id="localizacao"><legend>Localização</legend>
+    <div class="field-row">
+      <div class="field"><label for="e-cep">CEP</label><div class="row" style="flex-wrap:nowrap"><input id="e-cep" name="cep" inputmode="numeric" maxlength="9" value="<%= val('cep') %>" placeholder="00000-000"><button class="btn" type="button" data-cep-lookup>Buscar</button></div></div>
+      <div class="field"><label for="e-street">Rua</label><input id="e-street" name="street" maxlength="150" value="<%= val('street') %>"></div>
+      <div class="field" style="max-width:130px"><label for="e-num">Número</label><input id="e-num" name="number" maxlength="20" value="<%= val('number') %>"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="e-comp">Complemento</label><input id="e-comp" name="complement" maxlength="80" value="<%= val('complement') %>"></div>
+      <div class="field"><label for="e-nb">Bairro</label><input id="e-nb" name="neighborhood" maxlength="80" value="<%= val('neighborhood') %>"></div>
+      <div class="field"><label class="req" for="e-city">Cidade</label><input id="e-city" name="city" maxlength="80" value="<%= val('city') %>"></div>
+      <div class="field" style="max-width:120px"><label class="req" for="e-uf">Estado</label><select id="e-uf" name="state"><option value="">—</option><% states.forEach((u) => { %><option <%= val('state') === u ? 'selected' : '' %>><%= u %></option><% }) %></select></div>
+    </div>
+    <div class="row" style="margin-bottom:.5rem"><button class="btn" type="button" data-geocode><%- icon('locate') %> Localizar no mapa</button><span id="geo-msg" class="hint" role="status" aria-live="polite"></span></div>
+    <div class="field-row">
+      <div class="field"><label for="e-lat">Latitude</label><input id="e-lat" name="lat" value="<%= val('lat') %>" inputmode="decimal"></div>
+      <div class="field"><label for="e-lng">Longitude</label><input id="e-lng" name="lng" value="<%= val('lng') %>" inputmode="decimal"></div>
+    </div>
+    <p class="hint">Se você não informar a latitude e a longitude, tentamos localizar pelo endereço ao salvar. A posição exata nunca é exibida se você escolher uma opção de privacidade abaixo.</p>
+    <div class="label" style="margin-top:1rem">O que mostrar publicamente</div>
+    <label class="check"><input type="radio" name="privacy" value="exata" <%= val('privacy', 'exata') === 'exata' ? 'checked' : '' %>> <span><strong>Endereço completo e ponto exato no mapa</strong></span></label>
+    <label class="check"><input type="radio" name="privacy" value="aproximada" <%= val('privacy') === 'aproximada' ? 'checked' : '' %>> <span><strong>Localização aproximada</strong> — bairro e uma área de poucos quilômetros no mapa; sem rua nem número (indicado para endereço residencial)</span></label>
+    <label class="check"><input type="radio" name="privacy" value="cidade" <%= val('privacy') === 'cidade' ? 'checked' : '' %>> <span><strong>Somente a cidade</strong></span></label>
+  </fieldset>
+
+  <fieldset><legend>Estrutura e produção</legend>
+    <div class="field-row">
+      <div class="field"><label for="e-emp">Funcionários</label><input id="e-emp" name="employees" type="number" min="1" value="<%= val('employees') %>"></div>
+      <div class="field"><label for="e-shifts">Turnos de trabalho</label><input id="e-shifts" name="shifts" maxlength="80" value="<%= val('shifts') %>" placeholder="Ex.: 1 turno (diurno)"></div>
+      <div class="field"><label for="e-lote">Lote mínimo geral (peças)</label><input id="e-lote" name="min_batch" type="number" min="1" value="<%= val('min_batch') %>"></div>
+      <div class="field"><label for="e-prazo">Prazo médio (dias)</label><input id="e-prazo" name="lead_time_days" type="number" min="1" value="<%= val('lead_time_days') %>"></div>
+    </div>
+    <div class="label">Atende produções</div>
+    <label class="check"><input type="checkbox" name="attends_small" <%= chk('attends_small') ? 'checked' : '' %>> Pequenas</label>
+    <label class="check"><input type="checkbox" name="attends_medium" <%= chk('attends_medium') ? 'checked' : '' %>> Médias</label>
+    <label class="check"><input type="checkbox" name="attends_large" <%= chk('attends_large') ? 'checked' : '' %>> Grandes</label>
+    <p class="hint">Capacidade, máquinas e etapas ficam nas próximas telas do menu.</p>
+  </fieldset>
+
+  <fieldset id="disponibilidade"><legend>Disponibilidade para novos pedidos</legend>
+    <div class="field-row">
+      <div class="field"><label for="e-av">Situação</label><select id="e-av" name="availability"><option value="">Não informar</option><% Object.entries(cat.AVAIL_LABEL).forEach(([k, lbl]) => { %><option value="<%= k %>" <%= val('availability') === k ? 'selected' : '' %>><%= lbl %></option><% }) %></select></div>
+      <div class="field"><label for="e-avn">Observação</label><input id="e-avn" name="availability_note" maxlength="300" value="<%= val('availability_note') %>"></div>
+    </div>
+  </fieldset>
+
+  <fieldset id="midia"><legend>Logotipo e capa</legend>
+    <div class="field-row">
+      <div class="field"><label for="e-logo">Logotipo</label>
+        <img id="prev-logo" class="preview-logo" alt="Logotipo atual" <% if (c && c.logo) { %>src="<%= img(c.logo) %>"<% } else { %>hidden<% } %>>
+        <input id="e-logo" type="file" name="logo" accept="image/jpeg,image/png,image/webp" data-preview="prev-logo"><p class="hint">JPG, PNG ou WebP, até 8 MB. Quadrado funciona melhor.</p></div>
+      <div class="field"><label for="e-cover">Imagem de capa</label>
+        <img id="prev-cover" class="preview-img" alt="Capa atual" <% if (c && c.cover) { %>src="<%= img(c.cover) %>"<% } else { %>hidden<% } %>>
+        <input id="e-cover" type="file" name="cover" accept="image/jpeg,image/png,image/webp" data-preview="prev-cover"><p class="hint">Proporção horizontal (ex.: 1800×700).</p></div>
+    </div>
+  </fieldset>
+  <div class="row"><button class="btn btn-primary btn-lg" type="submit"><%= novo ? 'Criar página da empresa' : 'Salvar alterações' %></button><% if (!novo) { %><a class="btn" href="/painel">Voltar</a><% } %></div>
+</form>
+<%- include('../partials/panel-end') %>

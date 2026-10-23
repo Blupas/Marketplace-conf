@@ -1,0 +1,14 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Denúncias' }) %>
+<div class="chips" style="margin-bottom:1rem"><% [['aberta', 'Abertas'], ['procedente', 'Procedentes'], ['improcedente', 'Improcedentes']].forEach(([k, l]) => { %><a class="chip <%= status === k ? 'is-on' : '' %>" href="/admin/denuncias?status=<%= k %>"><%= l %></a><% }) %></div>
+<% if (!list.length) { %><div class="empty"><h3>Nenhuma denúncia aqui</h3></div><% } %>
+<div class="stack"><% list.forEach((r) => { %>
+<article class="card" style="margin:0"><div class="row between"><div><strong><%= r.reason %></strong> · <a href="/admin/empresas/<%= r.company_id %>"><%= r.company_name %></a> <span class="pill"><%= cat.STATUS_LABEL[r.company_status] %></span><br><span class="small muted"><%= U.fmtDate(r.created_at, true) %><%= r.reporter_email ? ' · ' + r.reporter_email : '' %><%= r.contact ? ' · contato: ' + r.contact : '' %></span></div><a class="btn btn-sm" href="/empresa/<%= r.slug %>" target="_blank" rel="noopener">Ver página</a></div>
+  <% if (r.details) { %><p style="white-space:pre-line;margin:.8rem 0"><%= r.details %></p><% } %>
+  <% if (r.status === 'aberta') { %>
+  <form method="post" action="/admin/denuncias/<%= r.id %>"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field"><label for="res-<%= r.id %>">Resolução (registro interno)</label><input id="res-<%= r.id %>" name="resolution" maxlength="500"></div>
+    <label class="check"><input type="checkbox" name="suspend" value="1"> Se procedente, suspender a empresa</label>
+    <div class="row"><button class="btn btn-primary btn-sm" type="submit" name="status" value="procedente">Procedente</button><button class="btn btn-sm" type="submit" name="status" value="improcedente">Improcedente</button></div></form>
+  <% } else { %><p class="small muted">Resolvida em <%= U.fmtDate(r.resolved_at, true) %><%= r.resolution ? ': ' + r.resolution : '' %></p><% } %>
+</article><% }) %></div>
+<%- include('../partials/panel-end') %>

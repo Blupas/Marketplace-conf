@@ -1,0 +1,38 @@
+<%- include('partials/head') %>
+<div class="page-head"><div class="wrap">
+  <p class="crumbs"><a href="/<%= s.kind === 'produto' ? 'produtos' : 'servicos' %>"><%= s.kind === 'produto' ? 'Produtos' : 'Serviços' %></a> / <a href="/empresa/<%= c.slug %>"><%= c.name %></a></p>
+  <h1><%= s.name %></h1>
+  <div class="row"><span class="pill"><%= s.kind === 'produto' ? 'Produto' : 'Serviço' %></span><% if (s.category_name) { %><span class="tag"><%= s.category_name %></span><% } %><% if (c.is_demo) { %><span class="pill pill-demo">Demonstração</span><% } %></div>
+</div></div>
+<div class="wrap co-layout">
+  <div>
+    <% if (photos.length) { %><section class="block"><div class="gallery"><% photos.forEach((m) => { %><button type="button" data-lightbox="<%= img(m.path) %>" data-caption="<%= m.caption || '' %>"><img src="<%= img(m.thumb || m.path) %>" alt="<%= m.caption || s.name %>" loading="lazy" width="320" height="240"></button><% }) %></div>
+      <dialog class="lightbox" id="lightbox"><figure style="margin:0"><img alt="" src=""><figcaption></figcaption></figure><button class="btn btn-icon close" type="button" data-lightbox-close aria-label="Fechar"><%- icon('x') %></button></dialog></section><% } %>
+    <section class="block">
+      <h2>Detalhes</h2>
+      <% if (s.description) { %><p class="about-text"><%= s.description %></p><% } else { %><p class="muted">Sem descrição.</p><% } %>
+      <dl class="kv">
+        <% const rows = [['Tecidos / materiais', s.fabrics], ['Tipos de peças', s.piece_types], ['Lote mínimo', s.min_batch ? U.fmtInt(s.min_batch) + ' peças' : null], ['Capacidade relacionada', s.capacity_note], ['Prazo estimado', s.lead_time_days ? s.lead_time_days + ' dias' : null],
+          ['Faixa de preço', s.price_min_cents != null ? U.money(s.price_min_cents) + (s.price_max_cents && s.price_max_cents !== s.price_min_cents ? ' a ' + U.money(s.price_max_cents) : '') + (s.price_unit ? ' ' + s.price_unit : '') : null]];
+        rows.forEach(([k, v]) => { %><div><dt><%= k %></dt><% if (v) { %><dd><%= v %></dd><% } else { %><dd class="na">não informado</dd><% } %></div><% }) %>
+      </dl>
+      <% if (s.conditions) { %><h3 style="margin-top:1.3rem">Condições comerciais e observações</h3><p class="about-text"><%= s.conditions %></p><% } %>
+      <p class="declared">Informações e valores declarados pela empresa, sem compra ou pagamento pela plataforma. Confirme tudo diretamente com o anunciante.</p>
+    </section>
+    <% if (others.length) { %><section class="block"><h2>Outros anúncios desta empresa</h2><ul>
+      <% others.forEach((o) => { %><li><a href="/anuncio/<%= o.id %>/<%= o.slug %>"><%= o.name %></a></li><% }) %></ul></section><% } %>
+  </div>
+  <aside class="contact-card">
+    <h2><%= c.name %></h2>
+    <p class="muted small"><%= pa.city %> – <%= pa.state %></p>
+    <% if (c.whatsapp) { %><a class="btn btn-wa btn-lg btn-block" href="/ir/whatsapp/<%= c.id %>?servico=<%= s.id %>" target="_blank" rel="noopener nofollow"><%- icon('whatsapp') %> Conversar pelo WhatsApp</a><% } %>
+    <a class="btn btn-gold btn-block" href="/empresa/<%= c.slug %>?servico=<%= s.id %>#orcamento">Solicitar orçamento</a>
+    <a class="btn btn-block" href="/empresa/<%= c.slug %>" style="margin-top:.55rem">Ver perfil completo</a>
+    <ul class="contact-list">
+      <% if (c.phone) { %><li><%- icon('phone') %><a href="tel:+<%= U.digits(c.phone) %>" data-track="click_telefone" data-company="<%= c.id %>"><%= U.formatPhone(c.phone) %></a></li><% } %>
+      <% if (c.email) { %><li><%- icon('mail') %><a href="mailto:<%= c.email %>" data-track="click_email" data-company="<%= c.id %>" style="overflow-wrap:anywhere"><%= c.email %></a></li><% } %>
+    </ul>
+    <hr><button type="button" class="btn btn-sm" data-share data-title="<%= s.name %> — <%= c.name %>"><%- icon('share') %> Compartilhar</button>
+  </aside>
+</div>
+<%- include('partials/footer') %>

@@ -1,0 +1,11 @@
+<%- include('../partials/panel-start', { area: 'painel', heading: 'Produtos e serviços', actions: '<a class="btn btn-primary" href="/painel/servicos/novo">Novo serviço</a> <a class="btn" href="/painel/servicos/novo?tipo=produto">Novo produto</a>' }) %>
+<% if (list.length) { %>
+<div class="card"><div class="table-scroll"><table class="table"><thead><tr><th>Anúncio</th><th>Tipo</th><th class="hide-sm">Categoria</th><th>Visualizações</th><th>Situação</th><th></th></tr></thead><tbody>
+  <% list.forEach((s) => { %><tr><td><strong><%= s.name %></strong></td><td><%= s.kind === 'produto' ? 'Produto' : 'Serviço' %></td><td class="hide-sm"><%= s.category_name || '—' %></td><td><%= s.views %></td>
+    <td><span class="pill <%= s.active ? 'pill-ok' : 'pill-off' %>"><%= s.active ? 'Ativo' : 'Oculto' %></span></td>
+    <td class="actions"><a class="btn btn-sm" href="/painel/servicos/<%= s.id %>/editar">Editar</a>
+      <form method="post" action="/painel/servicos/<%= s.id %>/ativar" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-sm" type="submit"><%= s.active ? 'Ocultar' : 'Reativar' %></button></form>
+      <form method="post" action="/painel/servicos/<%= s.id %>/excluir" class="inline-form" data-confirm="Excluir este anúncio e suas fotos?"><input type="hidden" name="_csrf" value="<%= csrf() %>"><button class="btn btn-sm btn-danger" type="submit">Excluir</button></form></td></tr><% }) %>
+</tbody></table></div></div>
+<% } else { %><div class="empty"><h3>Nenhum anúncio ainda</h3><p class="muted">Cadastre os serviços e produtos que sua empresa oferece. Cada anúncio tem página própria e botão de WhatsApp.</p><a class="btn btn-primary" href="/painel/servicos/novo">Criar o primeiro anúncio</a></div><% } %>
+<%- include('../partials/panel-end') %>

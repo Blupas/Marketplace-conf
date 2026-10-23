@@ -1,0 +1,13 @@
+<%- include('../partials/head') %>
+<div class="auth-wrap"><div class="auth-card">
+  <h1>Recuperar senha</h1>
+  <% if (sent) { %><div class="alert alert-ok" role="status">Se houver uma conta com esse e-mail, enviamos um link para criar uma nova senha. O link vale por 1 hora.</div>
+  <% } else { %>
+  <p class="muted">Informe o e-mail da conta. Enviaremos um link para criar uma nova senha.</p>
+  <form method="post" action="/esqueci-senha"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field"><label for="f-e">E-mail</label><input id="f-e" type="email" name="email" required autocomplete="email" autofocus></div>
+    <button class="btn btn-primary btn-block" type="submit">Enviar link</button></form>
+  <% } %>
+  <p class="small" style="margin-top:1rem"><a href="/entrar">Voltar para entrar</a></p>
+</div></div>
+<%- include('../partials/footer') %>

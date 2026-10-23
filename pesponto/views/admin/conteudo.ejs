@@ -1,0 +1,19 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Banners e textos' }) %>
+<% const labels = { site_name: 'Nome do site', site_tagline: 'Slogan', hero_title: 'Título da página inicial', hero_subtitle: 'Subtítulo da página inicial', about_text: 'Texto “Sobre”', footer_text: 'Texto do rodapé', contact_email: 'E-mail de contato', dpo_email: 'E-mail do encarregado de dados (LGPD)', legal_name: 'Razão social da operadora (Termos e Privacidade)', legal_cnpj: 'CNPJ da operadora' }; %>
+<form class="card" method="post" action="/admin/conteudo/textos"><input type="hidden" name="_csrf" value="<%= csrf() %>"><h2>Textos do site</h2>
+  <div class="alert alert-info">Preencha a razão social e o CNPJ da operadora: eles aparecem nos Termos de Uso e na Política de Privacidade.</div>
+  <% keys.forEach((k) => { const big = k === 'about_text'; %><div class="field"><label for="t-<%= k %>"><%= labels[k] %></label><% if (big) { %><textarea id="t-<%= k %>" name="<%= k %>"><%= site[k] || '' %></textarea><% } else { %><input id="t-<%= k %>" name="<%= k %>" value="<%= site[k] || '' %>"><% } %></div><% }) %>
+  <label class="check"><input type="checkbox" name="demo_banner" value="1" <%= site.demo_banner === '1' ? 'checked' : '' %>> Mostrar aviso “dados de demonstração” enquanto houver empresas de exemplo</label>
+  <button class="btn btn-primary" type="submit">Salvar textos</button></form>
+<div class="card"><h2>Banners da página inicial</h2>
+  <div class="stack"><% banners.forEach((b) => { %><form method="post" action="/admin/conteudo/banners/<%= b.id %>" class="card" style="margin:0;background:var(--denim-50,#f3f6fb)"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field-row"><div class="field"><label for="bt<%= b.id %>">Título</label><input id="bt<%= b.id %>" name="title" value="<%= b.title %>" maxlength="120"></div><div class="field" style="max-width:100px"><label for="bp<%= b.id %>">Ordem</label><input id="bp<%= b.id %>" name="position" type="number" value="<%= b.position %>"></div></div>
+    <div class="field"><label for="bx<%= b.id %>">Texto</label><input id="bx<%= b.id %>" name="text" value="<%= b.text || '' %>" maxlength="300"></div>
+    <div class="field-row"><div class="field"><label for="bl<%= b.id %>">Link (começa com / ou https://)</label><input id="bl<%= b.id %>" name="link" value="<%= b.link || '' %>"></div><div class="field"><label for="bc<%= b.id %>">Texto do botão</label><input id="bc<%= b.id %>" name="cta" value="<%= b.cta || '' %>" maxlength="40"></div></div>
+    <label class="check"><input type="checkbox" name="active" value="1" <%= b.active ? 'checked' : '' %>> Ativo</label>
+    <div class="row"><button class="btn btn-primary btn-sm" type="submit">Salvar</button><button class="btn btn-danger btn-sm" type="submit" name="action" value="excluir">Excluir</button></div></form><% }) %></div>
+  <h3 style="margin-top:1.5rem">Novo banner</h3>
+  <form method="post" action="/admin/conteudo/banners"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field-row"><div class="field"><label class="req" for="nb-t">Título</label><input id="nb-t" name="title" maxlength="120" required></div><div class="field"><label for="nb-l">Link</label><input id="nb-l" name="link" placeholder="/anunciar"></div><div class="field"><label for="nb-c">Botão</label><input id="nb-c" name="cta" maxlength="40"></div></div>
+    <div class="field"><label for="nb-x">Texto</label><input id="nb-x" name="text" maxlength="300"></div><button class="btn" type="submit">Adicionar banner</button></form></div>
+<%- include('../partials/panel-end') %>

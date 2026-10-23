@@ -1,0 +1,233 @@
+<%- include('partials/head') %>
+<% const _fav = favIds.has(c.id); const A = c.address || {}; const cap = c.capacity;
+   const _n = (v) => (v == null || v === '' ? null : v);
+   const totalMachines = c.machines.reduce((s, m) => s + m.quantity, 0);
+   const _sectors = Object.keys(sectors); %>
+<% if (c.status !== 'aprovado') { %>
+  <div class="wrap" style="padding-top:1rem"><div class="alert alert-warn"><div><strong>Pré-visualização.</strong> Esta página ainda não está pública (situação: <%= cat.STATUS_LABEL[c.status] %>).<% if (isOwner) { %> <a href="/painel">Voltar ao painel</a><% } %></div></div></div>
+<% } %>
+<div class="co-cover" <% if (c.cover) { %>style="background-image:url('<%= img(c.cover) %>')"<% } %>></div>
+<div class="wrap">
+  <div class="co-head">
+    <% if (c.logo) { %><img class="logo" src="<%= img(c.logo) %>" alt="Logotipo de <%= c.name %>" width="108" height="108"><% } else { %><span class="logo" aria-hidden="true" style="display:grid;place-items:center;background:var(--denim-800);color:#fff;font:700 2.6rem var(--font-display)"><%= c.name.slice(0, 1) %></span><% } %>
+    <div class="info">
+      <h1><%= c.name %></h1>
+      <div class="meta">
+        <% if (pa.city) { %><span class="row" style="gap:.3rem"><%- icon('pin', 'i-sm') %> <%= pa.city %> – <%= pa.state %></span><% } %>
+        <% if (c.founded_year) { %><span>Desde <%= c.founded_year %></span><% } %>
+        <% if (c.is_demo) { %><span class="pill pill-demo" title="Empresa fictícia criada para demonstração">Empresa fictícia · demonstração</span><% } %>
+        <% if (c.availability) { %><span class="pill pill-dot <%= c.availability === 'disponivel' ? 'pill-ok' : c.availability === 'limitada' ? 'pill-warn' : 'pill-off' %>"><%= cat.AVAIL_LABEL[c.availability] %></span><% } %>
+      </div>
+      <% if (c.categories.length) { %><div class="chips" style="margin-top:.6rem"><% c.categories.forEach((k) => { %><a class="chip" href="/confeccoes?categoria=<%= k.slug %>"><%= k.name %></a><% }) %></div><% } %>
+    </div>
+  </div>
+</div>
+<nav class="co-subnav" aria-label="Seções da página"><div class="wrap"><ul>
+  <li><a href="#sobre">Sobre</a></li><li><a href="#estrutura">Estrutura</a></li><li><a href="#capacidade">Capacidade</a></li><li><a href="#processo">Processo</a></li>
+  <li><a href="#servicos">Produtos e serviços</a></li><% if (media.length) { %><li><a href="#galeria">Galeria</a></li><% } %><li><a href="#localizacao">Localização</a></li><li><a href="#orcamento">Orçamento</a></li>
+</ul></div></nav>
+
+<div class="wrap co-layout">
+  <div>
+    <section class="block" id="sobre" aria-labelledby="t-sobre">
+      <h2 id="t-sobre">Sobre a empresa</h2>
+      <% if (c.tagline) { %><p class="sub" style="font-size:1.08rem;color:var(--ink)"><%= c.tagline %></p><% } %>
+      <% if (c.description) { %><p class="about-text"><%= c.description %></p><% } else { %><p class="muted">A empresa ainda não preencheu a descrição.</p><% } %>
+      <% if (c.history) { %><h3 style="margin-top:1.4rem">Nossa história</h3><p class="about-text"><%= c.history %></p><% } %>
+      <dl class="kv" style="margin-top:1.25rem">
+        <% if (c.founded_year) { %><div><dt>Fundação</dt><dd><%= c.founded_year %></dd></div><% } %>
+        <% if (c.specialties) { %><div><dt>Especialidades</dt><dd><%= U.csvList(c.specialties).join(', ') %></dd></div><% } %>
+        <% if (c.fabrics) { %><div><dt>Tecidos trabalhados</dt><dd><%= U.csvList(c.fabrics).join(', ') %></dd></div><% } %>
+        <% const sizes = [c.attends_small && 'Pequenas', c.attends_medium && 'Médias', c.attends_large && 'Grandes'].filter(Boolean); if (sizes.length) { %><div><dt>Atende produções</dt><dd><%= sizes.join(', ') %></dd></div><% } %>
+        <% if (c.hours) { %><div><dt>Horário de funcionamento</dt><dd><%= c.hours %></dd></div><% } %>
+      </dl>
+    </section>
+
+    <section class="block" id="estrutura" aria-labelledby="t-estr">
+      <h2 id="t-estr"><%- icon('engrenagem') %> Conheça nossa estrutura produtiva</h2>
+      <p class="sub">Máquinas e equipamentos cadastrados pela própria empresa.</p>
+      <% if (c.machines.length) { %>
+        <div class="machine-total">
+          <div><strong><%= U.fmtInt(totalMachines) %></strong><span>máquinas e equipamentos</span></div>
+          <div><strong><%= c.machines.length %></strong><span>tipos diferentes</span></div>
+          <% if (_n(c.employees)) { %><div><strong><%= U.fmtInt(c.employees) %></strong><span>funcionários</span></div><% } %>
+          <% if (_n(c.shifts)) { %><div><strong style="font-size:1.1rem;padding-top:.5rem"><%= c.shifts %></strong><span>turnos</span></div><% } %>
+        </div>
+        <div class="machine-groups">
+          <% _sectors.forEach((sec) => { %>
+            <h3><span><%= sec %></span><span class="muted"><%= sectors[sec].reduce((s, m) => s + m.quantity, 0) %> un.</span></h3>
+            <div class="machine-grid">
+              <% sectors[sec].forEach((m) => { %>
+              <div class="machine">
+                <% if (m.photo) { %><img src="<%= img(m.photo) %>" alt="<%= m.name %>" loading="lazy" width="52" height="52"><% } else { %><div class="qty"><%= m.quantity %><small>un.</small></div><% } %>
+                <div><h4><%= m.name %><% if (m.photo) { %> · <%= m.quantity %> un.<% } %></h4>
+                  <% const det = [m.brand, m.model].filter(Boolean).join(' '); if (det) { %><p><%= det %></p><% } %>
+                  <% if (m.operation) { %><p><%= m.operation %></p><% } %></div>
+              </div>
+              <% }) %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %><p class="muted">A empresa ainda não cadastrou o parque de máquinas.</p><% } %>
+    </section>
+
+    <section class="block" id="capacidade" aria-labelledby="t-cap">
+      <h2 id="t-cap">Capacidade produtiva</h2>
+      <p class="sub">Três informações diferentes: o que a empresa já produz, o máximo que estima produzir e o que tem livre agora.</p>
+      <div class="cap-grid">
+        <div class="cap"><h3>Produção histórica média</h3>
+          <% if (cap && cap.avg_monthly) { %><div class="big"><%= U.fmtInt(cap.avg_monthly) %> <small>peças/mês</small></div><p>Média informada pela empresa.</p><% } else { %><div class="big na">Não informado</div><p>A empresa não informou sua produção média.</p><% } %></div>
+        <div class="cap"><h3>Capacidade máxima estimada</h3>
+          <% if (cap && cap.max_monthly) { %><div class="big"><%= U.fmtInt(cap.max_monthly) %> <small>peças/mês</small></div><p>Estimativa da empresa; não é garantia de entrega.</p><% } else { %><div class="big na">Não informado</div><p>A empresa não informou a capacidade máxima.</p><% } %></div>
+        <div class="cap live"><h3>Disponível para novos pedidos</h3>
+          <% if (cap && cap.available_monthly != null) { %><div class="big"><%= U.fmtInt(cap.available_monthly) %> <small>peças/mês livres</small></div><% } else if (c.availability) { %><div class="big" style="font-size:1.25rem"><%= cat.AVAIL_LABEL[c.availability] %></div><% } else { %><div class="big na">Não informado</div><% } %>
+          <p><% if (c.availability_updated_at) { %>Atualizado em <%= U.fmtDate(c.availability_updated_at) %><%= stale ? ' — informação com mais de 60 dias, confirme com a empresa.' : '.' %><% } else { %>A empresa não atualizou a disponibilidade.<% } %></p>
+          <% if (c.availability_note) { %><p style="margin-top:.4rem;color:var(--ink)"><%= c.availability_note %></p><% } %></div>
+      </div>
+      <dl class="kv" style="margin-top:1.4rem">
+        <% const rows = [['Produção por dia', cap && cap.per_day, ' peças'], ['Produção por turno', cap && cap.per_shift, ' peças'], ['Funcionários na produção', cap && cap.production_staff, ''],
+          ['Lote mínimo', _n(c.min_batch) || (cap && cap.min_batch), ' peças'], ['Prazo médio de produção', _n(c.lead_time_days) || (cap && cap.lead_time_days), ' dias']];
+        rows.forEach(([k, v, suf]) => { %><div><dt><%= k %></dt><% if (v) { %><dd><%= U.fmtInt(v) %><%= suf %></dd><% } else { %><dd class="na">não informado</dd><% } %></div><% }) %>
+        <div><dt>Tipos de peças produzidas</dt><% const pieces = U.csvList(cap && cap.piece_types); if (pieces.length) { %><dd><%= pieces.join(', ') %></dd><% } else { %><dd class="na">não informado</dd><% } %></div>
+      </dl>
+      <% if (cap && cap.notes) { %><p class="about-text small" style="margin-top:1rem"><%= cap.notes %></p><% } %>
+      <p class="declared">Valores informados pela própria empresa e não verificados pela <%= site.name %>. Confirme prazos e quantidades antes de fechar negócio.</p>
+    </section>
+
+    <section class="block" id="processo" aria-labelledby="t-proc">
+      <h2 id="t-proc">Como funciona nossa produção</h2>
+      <p class="sub">As etapas, na ordem em que a empresa trabalha, e quem executa cada uma.</p>
+      <% if (c.steps.length) { %>
+        <div class="legend" aria-hidden="true"><span><i></i>Feita internamente</span><span><i class="o"></i>Terceirizada</span><span><i class="n"></i>Não oferecida</span></div>
+        <ol class="flow">
+          <% c.steps.forEach((s) => { %>
+          <li class="<%= s.mode === 'terceirizada' ? 'is-outsourced' : s.mode === 'nao_oferece' ? 'is-none' : '' %>">
+            <span class="node" aria-hidden="true"></span>
+            <h3><%= s.name %> <span class="pill <%= s.mode === 'interna' ? 'pill-ok' : s.mode === 'terceirizada' ? 'pill-warn' : 'pill-off' %>"><%= cat.MODE_LABEL[s.mode] %></span></h3>
+            <% if (s.description) { %><p><%= s.description %></p><% } %>
+          </li>
+          <% }) %>
+        </ol>
+      <% } else { %><p class="muted">A empresa ainda não descreveu as etapas do seu processo produtivo.</p><% } %>
+    </section>
+
+    <section class="block" id="servicos" aria-labelledby="t-serv">
+      <h2 id="t-serv">Produtos e serviços oferecidos</h2>
+      <% if (active.length) { %>
+        <div class="grid grid-2" style="margin-top:1rem">
+          <% active.forEach((s) => { %>
+          <article class="sv-card">
+            <% if (s.photo) { %><div class="thumb"><img src="<%= img(s.photo) %>" alt="" loading="lazy" width="480" height="270"></div><% } %>
+            <div class="row" style="gap:.4rem"><span class="pill"><%= s.kind === 'produto' ? 'Produto' : 'Serviço' %></span><% if (s.category_name) { %><span class="tag"><%= s.category_name %></span><% } %></div>
+            <h3><a href="/anuncio/<%= s.id %>/<%= s.slug %>"><%= s.name %></a></h3>
+            <% if (s.description) { %><p class="small" style="margin:0"><%= s.description.length > 220 ? s.description.slice(0, 220) + '…' : s.description %></p><% } %>
+            <ul class="sv-meta">
+              <% if (s.fabrics) { %><li>Tecidos: <strong><%= s.fabrics %></strong></li><% } %>
+              <% if (s.piece_types) { %><li>Peças: <strong><%= s.piece_types %></strong></li><% } %>
+              <% if (s.min_batch) { %><li>Lote mín.: <strong><%= U.fmtInt(s.min_batch) %> pç</strong></li><% } %>
+              <% if (s.lead_time_days) { %><li>Prazo: <strong><%= s.lead_time_days %> dias</strong></li><% } %>
+              <% if (s.price_min_cents != null) { %><li class="price"><%= U.money(s.price_min_cents) %><%= s.price_max_cents && s.price_max_cents !== s.price_min_cents ? ' a ' + U.money(s.price_max_cents) : '' %> <span class="muted" style="font-weight:400"><%= s.price_unit || '' %></span></li><% } %>
+            </ul>
+            <div class="btn-row">
+              <% if (c.whatsapp) { %><a class="btn btn-wa btn-sm" href="/ir/whatsapp/<%= c.id %>?servico=<%= s.id %>" target="_blank" rel="noopener nofollow"><%- icon('whatsapp') %> Pedir informações</a><% } %>
+              <a class="btn btn-sm" href="?servico=<%= s.id %>#orcamento">Solicitar orçamento</a>
+            </div>
+          </article>
+          <% }) %>
+        </div>
+        <p class="declared">Faixas de preço, quando exibidas, são referências informadas pela empresa. Não há compra nem pagamento na plataforma.</p>
+      <% } else { %><p class="muted">A empresa ainda não cadastrou produtos ou serviços.</p><% } %>
+    </section>
+
+    <% if (media.length) { %>
+    <section class="block" id="galeria" aria-labelledby="t-gal">
+      <h2 id="t-gal">Fotos e vídeos</h2>
+      <% const vids = media.filter((m) => m.kind !== 'imagem'); const imgs = media.filter((m) => m.kind === 'imagem'); %>
+      <% if (vids.length) { %><div class="grid grid-2" style="margin-bottom:1rem"><% vids.forEach((v) => { %><div class="video-wrap"><% if (v.kind === 'video_embed') { %><iframe src="<%= v.path %>" title="<%= v.caption || 'Vídeo da empresa' %>" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><% } else { %><video controls preload="metadata" src="<%= img(v.path) %>"></video><% } %></div><% }) %></div><% } %>
+      <div class="gallery"><% imgs.forEach((m) => { %><button type="button" data-lightbox="<%= img(m.path) %>" data-caption="<%= m.caption || '' %>" aria-label="Ampliar foto<%= m.caption ? ': ' + m.caption : '' %>"><img src="<%= img(m.thumb || m.path) %>" alt="<%= m.caption || 'Foto da estrutura de ' + c.name %>" loading="lazy" width="320" height="240"></button><% }) %></div>
+      <dialog class="lightbox" id="lightbox"><figure style="margin:0"><img alt="" src=""><figcaption></figcaption></figure><button class="btn btn-icon close" type="button" data-lightbox-close aria-label="Fechar"><%- icon('x') %></button></dialog>
+    </section>
+    <% } %>
+
+    <section class="block" id="localizacao" aria-labelledby="t-loc">
+      <h2 id="t-loc">Localização e contato</h2>
+      <div class="grid grid-2" style="margin-top:1rem">
+        <div>
+          <address class="addr">
+            <% if (pa.line) { %><strong><%= pa.line %></strong><br><% } %>
+            <% if (pa.neighborhood) { %><%= pa.neighborhood %><br><% } %>
+            <%= pa.city %><%= pa.state ? ' – ' + pa.state : '' %><% if (pa.cep) { %> · CEP <%= U.formatCep(pa.cep) %><% } %>
+          </address>
+          <% if (pa.privacy !== 'exata') { %><p class="declared">A empresa optou por divulgar apenas uma <%= pa.privacy === 'cidade' ? 'localização geral (cidade)' : 'localização aproximada' %>. O endereço completo é informado diretamente pela empresa.</p><% } %>
+          <% if (pa.hasPoint) { %>
+          <div class="row" style="margin-top:.8rem">
+            <a class="btn btn-sm" data-route="<%= c.id %>" href="https://www.google.com/maps/dir/?api=1&destination=<%= pa.lat %>,<%= pa.lng %>" target="_blank" rel="noopener"><%- icon('external') %> Abrir rota no Google Maps</a>
+            <a class="btn btn-sm" data-route="<%= c.id %>" href="https://waze.com/ul?ll=<%= pa.lat %>,<%= pa.lng %>&navigate=yes" target="_blank" rel="noopener"><%- icon('external') %> Waze</a>
+          </div><% } %>
+        </div>
+        <% if (pa.hasPoint) { %><div class="map-box" id="co-map" data-lat="<%= pa.lat %>" data-lng="<%= pa.lng %>" data-privacy="<%= pa.privacy %>" data-name="<%= c.name %>" role="img" aria-label="Mapa com a localização de <%= c.name %>"></div><% } else { %><p class="muted">A empresa ainda não definiu a localização no mapa.</p><% } %>
+      </div>
+    </section>
+
+    <section class="block" id="orcamento" aria-labelledby="t-orc">
+      <h2 id="t-orc">Solicitar orçamento</h2>
+      <p class="sub">Sua mensagem é encaminhada à empresa, que responde diretamente por WhatsApp, telefone ou e-mail. Não há pagamento nem compromisso pela plataforma.</p>
+      <% if (sent) { %><div class="alert alert-ok" role="status"><div><strong>Solicitação enviada.</strong> A empresa vai entrar em contato pelos dados que você informou.
+        <% if (c.whatsapp) { %> Quer adiantar? <a href="/ir/whatsapp/<%= c.id %>" target="_blank" rel="noopener nofollow">Conversar pelo WhatsApp</a>.<% } %></div></div><% } %>
+      <form method="post" action="/orcamento" class="stack" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrf() %>"><input type="hidden" name="_ts" value="<%= spamToken() %>"><input type="hidden" name="company_id" value="<%= c.id %>">
+        <div class="hp" aria-hidden="true"><label>Não preencha <input type="text" name="website_url_confirm" tabindex="-1" autocomplete="off"></label></div>
+        <div class="field-row">
+          <div class="field"><label class="req" for="q-name">Seu nome</label><input id="q-name" name="name" required maxlength="100" autocomplete="name" value="<%= locals.user ? user.name : '' %>"></div>
+          <div class="field"><label for="q-mail">E-mail</label><input id="q-mail" type="email" name="email" maxlength="200" autocomplete="email" value="<%= locals.user ? user.email : '' %>"></div>
+          <div class="field"><label for="q-tel">Telefone / WhatsApp</label><input id="q-tel" type="tel" name="phone" maxlength="30" autocomplete="tel" placeholder="(47) 99999-0000"></div>
+        </div>
+        <p class="hint" style="margin-top:-.5rem">Informe pelo menos um e-mail ou telefone.</p>
+        <div class="field-row">
+          <div class="field"><label for="q-srv">Serviço ou produto de interesse</label><select id="q-srv" name="service_id"><option value="">Não especificado</option><% active.forEach((s) => { %><option value="<%= s.id %>" <%= pre.service === s.id ? 'selected' : '' %>><%= s.name %></option><% }) %></select></div>
+          <div class="field"><label for="q-qtd">Quantidade estimada (peças)</label><input id="q-qtd" name="quantity" type="number" min="1" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label class="req" for="q-msg">O que você precisa produzir?</label><textarea id="q-msg" name="message" required minlength="10" maxlength="2000" placeholder="Tipo de peça, tecido, quantidade, prazo desejado…"></textarea></div>
+        <label class="check"><input type="checkbox" name="consent" required> <span>Autorizo o envio dos meus dados de contato a <strong><%= c.name %></strong> para que respondam a esta solicitação. Veja a <a href="/privacidade">política de privacidade</a>.</span></label>
+        <button class="btn btn-gold btn-lg" type="submit">Enviar solicitação de orçamento</button>
+      </form>
+    </section>
+
+    <section class="block" id="denuncia" aria-labelledby="t-den">
+      <% if (reported) { %><div class="alert alert-ok" role="status">Denúncia recebida. Nossa equipe vai analisar.</div><% } %>
+      <details><summary class="link-btn" id="t-den" style="cursor:pointer"><%- icon('flag', 'i-sm') %> Denunciar este anúncio</summary>
+        <form method="post" action="/denunciar" class="stack" style="margin-top:1rem">
+          <input type="hidden" name="_csrf" value="<%= csrf() %>"><input type="hidden" name="_ts" value="<%= spamToken() %>"><input type="hidden" name="company_id" value="<%= c.id %>">
+          <div class="hp" aria-hidden="true"><label>Não preencha <input type="text" name="website_url_confirm" tabindex="-1" autocomplete="off"></label></div>
+          <div class="field"><label for="d-r">Motivo</label><select id="d-r" name="reason" required><option value="">Escolha…</option><option value="informacao_incorreta">Informação incorreta</option><option value="golpe_ou_fraude">Suspeita de golpe ou fraude</option><option value="empresa_inexistente">Empresa inexistente</option><option value="conteudo_improprio">Conteúdo impróprio</option><option value="outro">Outro</option></select></div>
+          <div class="field"><label for="d-d">Detalhes</label><textarea id="d-d" name="details" maxlength="1500"></textarea></div>
+          <div class="field"><label for="d-c">Seu contato (opcional)</label><input id="d-c" name="contact" maxlength="150"></div>
+          <button class="btn" type="submit">Enviar denúncia</button>
+        </form></details>
+    </section>
+  </div>
+
+  <aside class="contact-card" aria-labelledby="t-contact">
+    <h2 id="t-contact">Fale com a empresa</h2>
+    <% if (c.whatsapp) { %><a class="btn btn-wa btn-lg btn-block" href="/ir/whatsapp/<%= c.id %>" target="_blank" rel="noopener nofollow"><%- icon('whatsapp') %> Conversar pelo WhatsApp</a><% } %>
+    <a class="btn btn-gold btn-block" href="#orcamento">Solicitar orçamento</a>
+    <ul class="contact-list">
+      <% if (c.phone) { %><li><%- icon('phone') %><a href="tel:+<%= U.digits(c.phone) %>" data-track="click_telefone" data-company="<%= c.id %>"><%= U.formatPhone(c.phone) %></a><button type="button" class="btn btn-ghost btn-sm btn-icon copy" data-copy="<%= U.formatPhone(c.phone) %>" data-company="<%= c.id %>" aria-label="Copiar telefone" title="Copiar"><%- icon('copy') %></button></li><% } %>
+      <% if (c.whatsapp) { %><li><%- icon('whatsapp') %><span>WhatsApp <%= U.formatPhone(c.whatsapp) %></span><button type="button" class="btn btn-ghost btn-sm btn-icon copy" data-copy="<%= U.formatPhone(c.whatsapp) %>" data-company="<%= c.id %>" aria-label="Copiar WhatsApp" title="Copiar"><%- icon('copy') %></button></li><% } %>
+      <% if (c.email) { %><li><%- icon('mail') %><a href="mailto:<%= c.email %>" data-track="click_email" data-company="<%= c.id %>" style="overflow-wrap:anywhere"><%= c.email %></a><button type="button" class="btn btn-ghost btn-sm btn-icon copy" data-copy="<%= c.email %>" data-company="<%= c.id %>" aria-label="Copiar e-mail" title="Copiar"><%- icon('copy') %></button></li><% } %>
+      <% if (c.website) { %><li><%- icon('link') %><a href="<%= c.website %>" target="_blank" rel="noopener nofollow ugc" style="overflow-wrap:anywhere"><%= c.website.replace(/^https?:\/\//, '').replace(/\/$/, '') %></a></li><% } %>
+      <% if (c.instagram) { %><li><%- icon('link') %><a href="<%= c.instagram %>" target="_blank" rel="noopener nofollow">Instagram</a></li><% } %>
+      <% if (c.facebook) { %><li><%- icon('link') %><a href="<%= c.facebook %>" target="_blank" rel="noopener nofollow">Facebook</a></li><% } %>
+      <% if (c.linkedin) { %><li><%- icon('link') %><a href="<%= c.linkedin %>" target="_blank" rel="noopener nofollow">LinkedIn</a></li><% } %>
+    </ul>
+    <% if (!c.whatsapp && !c.phone && !c.email) { %><p class="muted small">A empresa não divulgou contatos. Use o formulário de orçamento.</p><% } %>
+    <hr>
+    <div class="row">
+      <button type="button" class="btn btn-sm" data-fav="<%= c.id %>" aria-pressed="<%= _fav ? 'true' : 'false' %>"><%- icon('heart') %> <span data-fav-label><%= _fav ? 'Favoritada' : 'Favoritar' %></span></button>
+      <label class="compare-check btn btn-sm" style="font-weight:600;color:var(--denim-800)"><input type="checkbox" data-compare="<%= c.id %>" data-name="<%= c.name %>" data-slug="<%= c.slug %>"> Comparar</label>
+      <button type="button" class="btn btn-sm" data-share data-title="<%= c.name %>"><%- icon('share') %> Compartilhar</button>
+    </div>
+    <% if (c.is_demo) { %><p class="declared" style="margin-top:1rem">Empresa fictícia de demonstração: telefones, e-mails e endereços não são reais.</p><% } %>
+  </aside>
+</div>
+<%- include('partials/footer') %>

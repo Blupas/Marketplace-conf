@@ -1,0 +1,27 @@
+<%- include('../partials/panel-start', { area: 'admin', heading: 'Visão geral' }) %>
+<% const max = Math.max(1, ...series.map((s) => s.n)); %>
+<div class="kpis">
+  <a class="kpi" href="/admin/empresas?status=pendente" style="text-decoration:none"><span>Aguardando análise</span><strong><%= kpi.pendentes %></strong></a>
+  <a class="kpi" href="/admin/denuncias" style="text-decoration:none"><span>Denúncias abertas</span><strong><%= kpi.denuncias %></strong></a>
+  <div class="kpi"><span>Empresas publicadas (reais)</span><strong><%= kpi.empresas %></strong><small><%= kpi.demo %> de demonstração</small></div>
+  <div class="kpi"><span>Anúncios ativos</span><strong><%= kpi.servicos %></strong></div>
+  <div class="kpi"><span>Usuários</span><strong><%= kpi.usuarios %></strong></div>
+  <a class="kpi" href="/admin/mensagens" style="text-decoration:none"><span>Mensagens a responder</span><strong><%= kpi.msgs %></strong></a>
+</div>
+<div class="kpis">
+  <div class="kpi"><span>Buscas (30 dias)</span><strong><%= U.fmtInt((ev.busca || 0) + (ev.busca_vazia || 0)) %></strong></div>
+  <div class="kpi"><span>Buscas sem resultado</span><strong><%= U.fmtInt(ev.busca_vazia || 0) %></strong></div>
+  <div class="kpi"><span>Cliques no WhatsApp</span><strong><%= U.fmtInt(ev.click_whatsapp || 0) %></strong></div>
+  <div class="kpi"><span>Orçamentos</span><strong><%= U.fmtInt(ev.orcamento || 0) %></strong></div>
+</div>
+<div class="card"><h2>Visualizações de páginas (30 dias)</h2>
+  <div class="bars" role="img" aria-label="Visualizações de empresas e anúncios por dia"><% series.forEach((s) => { %><span style="height:<%= Math.max(2, Math.round(s.n / max * 100)) %>%" title="<%= s.day %>: <%= s.n %>"></span><% }) %></div>
+  <div class="bars-x"><span><%= U.fmtDate(series[0].day) %></span><span><%= U.fmtDate(series[series.length - 1].day) %></span></div></div>
+<div class="grid grid-2">
+  <div class="card"><h2>Termos mais buscados</h2><% if (terms.length) { %><table class="table"><tbody><% terms.forEach((t) => { %><tr><td><%= t.term %></td><td style="text-align:right"><%= t.n %></td></tr><% }) %></tbody></table><% } else { %><p class="muted">Sem dados ainda.</p><% } %>
+    <% if (noResult.length) { %><h3 style="font-size:1rem;margin-top:1.2rem">Buscas sem resultado (oportunidade de cadastro)</h3><table class="table"><tbody><% noResult.forEach((t) => { %><tr><td><%= t.term %></td><td style="text-align:right"><%= t.n %></td></tr><% }) %></tbody></table><% } %></div>
+  <div class="card"><h2>Empresas mais visitadas</h2><% if (topCompanies.length) { %><table class="table"><tbody><% topCompanies.forEach((t) => { %><tr><td><a href="/admin/empresas/<%= t.id %>"><%= t.name %></a></td><td style="text-align:right"><%= t.n %></td></tr><% }) %></tbody></table><% } else { %><p class="muted">Sem dados de empresas reais ainda.</p><% } %>
+    <% if (states.length) { %><h3 style="font-size:1rem;margin-top:1.2rem">Empresas por estado</h3><div class="chips"><% states.forEach((s) => { %><span class="chip"><%= s.state %> · <%= s.n %></span><% }) %></div><% } %></div>
+</div>
+<p class="hint">Estatísticas não guardam IP nem identificam visitantes.</p>
+<%- include('../partials/panel-end') %>

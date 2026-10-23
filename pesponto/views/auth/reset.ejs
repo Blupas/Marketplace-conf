@@ -1,0 +1,13 @@
+<%- include('../partials/head') %>
+<div class="auth-wrap"><div class="auth-card">
+  <h1>Nova senha</h1>
+  <% if (!valid) { %><div class="alert alert-error">Este link expirou ou já foi usado. <a href="/esqueci-senha">Peça um novo link</a>.</div>
+  <% } else { %>
+  <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+  <form method="post" action="/redefinir-senha/<%= token %>"><input type="hidden" name="_csrf" value="<%= csrf() %>">
+    <div class="field"><label for="n-p">Nova senha</label><input id="n-p" type="password" name="password" required minlength="8" autocomplete="new-password"><p class="hint">Mínimo de 8 caracteres, com letras e números.</p></div>
+    <div class="field"><label for="n-p2">Repita a senha</label><input id="n-p2" type="password" name="password2" required autocomplete="new-password"></div>
+    <button class="btn btn-primary btn-block" type="submit">Salvar nova senha</button></form>
+  <% } %>
+</div></div>
+<%- include('../partials/footer') %>

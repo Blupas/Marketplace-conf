@@ -1,0 +1,51 @@
+</main>
+<div id="compare-tray" class="compare-tray" hidden>
+  <div class="wrap">
+    <p><strong data-compare-count>0</strong> <span data-compare-label>empresas selecionadas</span> para comparar</p>
+    <ul data-compare-list class="compare-list"></ul>
+    <div class="compare-actions">
+      <button type="button" class="btn btn-ghost btn-sm" data-compare-clear>Limpar</button>
+      <a class="btn btn-gold btn-sm" href="/comparar" data-compare-go aria-disabled="true"><%- icon('compare') %> Comparar</a>
+    </div>
+  </div>
+</div>
+<div class="toast" role="status" aria-live="polite" id="toast" hidden></div>
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="foot-brand"><%= site.name %></p>
+      <p class="muted-on-dark"><%= site.footer_text %></p>
+    </div>
+    <nav aria-label="Plataforma">
+      <h2>Plataforma</h2>
+      <ul>
+        <li><a href="/confeccoes">Encontrar confecções</a></li>
+        <li><a href="/servicos">Serviços</a></li>
+        <li><a href="/produtos">Produtos</a></li>
+        <li><a href="/mapa">Mapa</a></li>
+        <li><a href="/anunciar">Anunciar minha empresa</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Institucional">
+      <h2>Institucional</h2>
+      <ul>
+        <li><a href="/sobre">Sobre</a></li>
+        <li><a href="/contato">Contato</a></li>
+        <li><a href="/termos">Termos de uso</a></li>
+        <li><a href="/privacidade">Política de privacidade</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Fale com a gente</h2>
+      <p><a href="mailto:<%= site.contact_email || config.contactEmail %>"><%= site.contact_email || config.contactEmail %></a></p>
+      <p class="muted-on-dark small">A <%= site.name %> não vende produtos nem intermedeia pagamentos. As informações de cada empresa são declaradas pelo próprio anunciante.</p>
+    </div>
+  </div>
+  <div class="wrap footer-base"><p>© <%= new Date().getFullYear() %> <%= site.name %>. Todos os direitos reservados.</p>
+    <p class="small">Usamos apenas cookies essenciais (login e segurança). Não há rastreamento publicitário.</p></div>
+</footer>
+<% if (locals.needsMap) { %><script src="/vendor/leaflet/leaflet.js"></script><script src="/vendor/leaflet/leaflet.markercluster.js"></script><% } %>
+<script src="/js/app.js?v=<%= assetV %>" defer></script>
+<% (locals.scripts || []).forEach((s) => { %><script src="/js/<%= s %>.js?v=<%= assetV %>" defer></script><% }) %>
+</body>
+</html>

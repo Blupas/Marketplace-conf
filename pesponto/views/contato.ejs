@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<div class="auth-wrap" style="max-width:640px"><div class="auth-card">
+  <h1>Fale com a gente</h1>
+  <p class="muted">Dúvidas, sugestões ou pedidos relacionados aos seus dados pessoais (LGPD). Também atendemos por <a href="mailto:<%= site.contact_email || config.contactEmail %>"><%= site.contact_email || config.contactEmail %></a>.</p>
+  <% if (sent) { %><div class="alert alert-ok" role="status">Mensagem enviada. Retornaremos pelo e-mail informado.</div><% } %>
+  <form method="post" action="/contato" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrf() %>"><input type="hidden" name="_ts" value="<%= spamToken() %>">
+    <div class="hp" aria-hidden="true"><label>Não preencha <input type="text" name="website_url_confirm" tabindex="-1" autocomplete="off"></label></div>
+    <div class="field"><label class="req" for="c-n">Nome</label><input id="c-n" name="name" required maxlength="100" autocomplete="name"></div>
+    <div class="field"><label class="req" for="c-e">E-mail</label><input id="c-e" type="email" name="email" required maxlength="200" autocomplete="email"></div>
+    <div class="field"><label class="req" for="c-m">Mensagem</label><textarea id="c-m" name="message" required minlength="10" maxlength="3000"></textarea></div>
+    <button class="btn btn-primary" type="submit">Enviar mensagem</button>
+  </form>
+</div></div>
+<%- include('partials/footer') %>
